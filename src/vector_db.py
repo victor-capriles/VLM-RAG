@@ -187,7 +187,7 @@ class SimpleVectorDB:
                 raise ValueError("No collection specified and no current collection set. Use use_collection() first.")
             
             results = collection.query(
-                query_embeddings=[query_embedding],
+                query_embeddings=query_embedding,
                 n_results=n_results
             )
             
