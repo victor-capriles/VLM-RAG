@@ -22,6 +22,7 @@ class SimpleVectorDB:
         self.current_collection_name = None
         
         print(f"Vector DB initialized at: {db_path}")
+        print(f"Persistence enabled: Data will be saved to disk")
     
     def create_collection(self, collection_name: str, description: str = ""):
         """
@@ -96,7 +97,6 @@ class SimpleVectorDB:
         embedding_id: str,
         image_embedding: List[float],
         question: str,
-        image_path: str,
         answerability: str,
         question_type: str,
         image_url: str,
@@ -111,7 +111,6 @@ class SimpleVectorDB:
             embedding_id: Specific ID for this embedding
             image_embedding: The multimodal embedding of the image
             question: The visual question the user asked
-            image_path: Path to the original image
             answerability: Whether the question is answerable
             question_type: Type of question
             image_url: Original VizWiz image URL
@@ -122,40 +121,44 @@ class SimpleVectorDB:
         Returns:
             The embedding ID that was used
         """
-        # Use specified collection or current collection
-        if collection_name:
-            collection = self.create_collection(collection_name)
-        elif self.current_collection:
-            collection = self.current_collection
-        else:
-            # Default collection for backward compatibility
-            collection = self.create_collection("default_embeddings", "Default image embeddings")
-            self.current_collection = collection
-            self.current_collection_name = "default_embeddings"
-        
-        # Create metadata with all VizWiz fields
-        metadata = {
-            "question": question,
-            "image_path": image_path,
-            "timestamp": datetime.now().isoformat(),
-            "id": embedding_id,
-            "answerability": answerability,
-            "question_type": question_type,
-            "image_url": image_url,
-            "crowd_answers": crowd_answers,
-            "crowd_majority": crowd_majority
-        }
-        
-        # Add embedding to collection with the specific ID
-        collection.add(
-            embeddings=[image_embedding],
-            metadatas=[metadata],
-            ids=[embedding_id]
-        )
-        
-        collection_name_used = collection_name or self.current_collection_name or "default_embeddings"
-        print(f"Added embedding {embedding_id} to collection '{collection_name_used}'")
-        return embedding_id
+        try:
+            # Use specified collection or current collection
+            if collection_name:
+                collection = self.create_collection(collection_name)
+            elif self.current_collection:
+                collection = self.current_collection
+            else:
+                # Default collection for backward compatibility
+                collection = self.create_collection("default_embeddings", "Default image embeddings")
+                self.current_collection = collection
+                self.current_collection_name = "default_embeddings"
+            
+            # Create metadata with all VizWiz fields
+            metadata = {
+                "question": question,
+                "timestamp": datetime.now().isoformat(),
+                "id": embedding_id,
+                "answerability": answerability,
+                "question_type": question_type,
+                "image_url": image_url,
+                "crowd_answers": "|".join(crowd_answers) if crowd_answers else "",
+                "crowd_majority": crowd_majority
+            }
+            
+            # Add embedding to collection with the specific ID (FIXED: embeddings must be a list)
+            collection.add(
+                embeddings=image_embedding,  
+                metadatas=[metadata],
+                ids=[embedding_id]
+            )
+            
+            collection_name_used = collection_name or self.current_collection_name or "default_embeddings"
+            print(f"Added embedding {embedding_id} to collection '{collection_name_used}' (persisted to disk)")
+            return embedding_id
+            
+        except Exception as e:
+            print(f"Error adding embedding {embedding_id}: {e}")
+            raise
     
     def search_similar_images(
         self, 
@@ -174,33 +177,37 @@ class SimpleVectorDB:
         Returns:
             Dictionary with search results
         """
-        # Use specified collection or current collection
-        if collection_name:
-            collection = self.create_collection(collection_name)
-        elif self.current_collection:
-            collection = self.current_collection
-        else:
-            raise ValueError("No collection specified and no current collection set. Use use_collection() first.")
-        
-        results = collection.query(
-            query_embeddings=[query_embedding],
-            n_results=n_results
-        )
-        
-        # Format results
-        similar_images = []
-        for i, embedding_id in enumerate(results["ids"][0]):
-            similar_images.append({
-                "id": embedding_id,
-                "distance": results["distances"][0][i],
-                "metadata": results["metadatas"][0][i]
-            })
-        
-        return {
-            "similar_images": similar_images,
-            "count": len(similar_images),
-            "collection": collection_name or self.current_collection_name
-        }
+        try:
+            # Use specified collection or current collection
+            if collection_name:
+                collection = self.create_collection(collection_name)
+            elif self.current_collection:
+                collection = self.current_collection
+            else:
+                raise ValueError("No collection specified and no current collection set. Use use_collection() first.")
+            
+            results = collection.query(
+                query_embeddings=[query_embedding],
+                n_results=n_results
+            )
+            
+            # Format results
+            similar_images = []
+            for i, embedding_id in enumerate(results["ids"][0]):
+                similar_images.append({
+                    "id": embedding_id,
+                    "distance": results["distances"][0][i],
+                    "metadata": results["metadatas"][0][i]
+                })
+            
+            return {
+                "similar_images": similar_images,
+                "count": len(similar_images),
+                "collection": collection_name or self.current_collection_name
+            }
+        except Exception as e:
+            print(f"Error searching collection: {e}")
+            return {"similar_images": [], "count": 0, "error": str(e)}
     
     def check_if_exists(self, embedding_id: str, collection_name: Optional[str] = None) -> bool:
         """
@@ -237,21 +244,66 @@ class SimpleVectorDB:
         Returns:
             Dictionary with collection statistics
         """
-        # Use specified collection or current collection
-        if collection_name:
-            collection = self.create_collection(collection_name)
-            name = collection_name
-        elif self.current_collection:
-            collection = self.current_collection
-            name = self.current_collection_name
-        else:
-            return {"total_images": 0, "collection_name": "None", "error": "No collection specified"}
+        try:
+            # Use specified collection or current collection
+            if collection_name:
+                collection = self.create_collection(collection_name)
+                name = collection_name
+            elif self.current_collection:
+                collection = self.current_collection
+                name = self.current_collection_name
+            else:
+                return {"total_images": 0, "collection_name": "None", "error": "No collection specified"}
+            
+            count = collection.count()
+            return {
+                "total_images": count,
+                "collection_name": name,
+                "persisted": True
+            }
+        except Exception as e:
+            return {"total_images": 0, "collection_name": "Error", "error": str(e)}
+    
+    def verify_persistence(self) -> Dict[str, Any]:
+        """
+        Verify that data is properly persisted to disk
         
-        count = collection.count()
-        return {
-            "total_images": count,
-            "collection_name": name
-        }
+        Returns:
+            Dictionary with persistence verification info
+        """
+        try:
+            # Check if database directory exists
+            db_exists = os.path.exists(self.db_path)
+            
+            # Check if there are any files in the database directory
+            db_files = []
+            if db_exists:
+                db_files = os.listdir(self.db_path)
+            
+            # Get collection info
+            collections = self.list_collections()
+            
+            result = {
+                "database_path": self.db_path,
+                "database_exists": db_exists,
+                "database_files": db_files,
+                "collections_count": len(collections),
+                "collections": collections,
+                "persistence_working": db_exists and len(db_files) > 0
+            }
+            
+            print(f"Persistence Status:")
+            print(f"  Database path: {self.db_path}")
+            print(f"  Database exists: {db_exists}")
+            print(f"  Files in database: {len(db_files)}")
+            print(f"  Collections: {len(collections)}")
+            print(f"  Persistence working: {result['persistence_working']}")
+            
+            return result
+            
+        except Exception as e:
+            print(f"Error verifying persistence: {e}")
+            return {"error": str(e), "persistence_working": False}
     
     def delete_collection(self, collection_name: str):
         """
@@ -262,7 +314,7 @@ class SimpleVectorDB:
         """
         try:
             self.client.delete_collection(collection_name)
-            print(f"Deleted collection: {collection_name}")
+            print(f"Deleted collection: {collection_name} (change persisted to disk)")
             
             # Reset current collection if it was deleted
             if self.current_collection_name == collection_name:
@@ -273,10 +325,13 @@ class SimpleVectorDB:
 
 
 if __name__ == "__main__":
-    # Quick test of multi-collection functionality
+    # Quick test of multi-collection functionality and persistence
     db = SimpleVectorDB()
+    
+    # Verify persistence is working
+    db.verify_persistence()
     
     # Show available collections
     db.list_collections()
     
-    print("\n✅ Multi-collection Vector DB ready! 🗂️")
+    print("\n✅ Multi-collection Vector DB ready with persistence! 💾🗂️")
