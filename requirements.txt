@@ -1,0 +1,19 @@
+# Core dependencies
+chromadb==0.4.15
+requests==2.31.0
+pillow==10.0.0
+python-dotenv==1.0.0
+
+# AI/ML APIs
+cohere== 5.15.0
+
+# Data & ML
+pandas==2.1.0
+numpy==1.24.0
+
+# Notebook
+jupyter==1.0.0
+ipywidgets==8.1.1
+
+# Testing (optional)
+pytest==7.4.0 
