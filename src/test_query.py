@@ -205,6 +205,8 @@ def main() -> None:
             print("--------------------------------")
             print(f"Real question: {VALIDATION_IMAGE_REAL_QUESTION}")
             print("--------------------------------")
+            print(f"Original Image: {IMAGE_URL}")
+            print("--------------------------------")
         except Exception as e:
             print(f"Error for {name}: {e}")
 
