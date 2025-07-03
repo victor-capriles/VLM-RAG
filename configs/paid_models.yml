@@ -11,6 +11,7 @@ models:
     provider: perplexity
     model: sonar
 
+
   - name: qwenv3
     provider: openrouter
     model: qwen/qwen3-30b-a3b:free

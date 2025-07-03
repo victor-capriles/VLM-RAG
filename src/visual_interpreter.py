@@ -75,12 +75,25 @@ class BaseModel:
         self,
         prompt_or_messages: Union[str, List[Dict[str, str]]],
         mode: str,
-        image_urls: Optional[List[str]] = None
+        image_urls: Optional[List[str]] = None,
+        system_prompt: Optional[str] = None
     ) -> Tuple[str, Dict, Dict, List[Dict[str, str]]]:
         """
         Accept either a prompt string or a message-history list.
         Normalize to a messages list, call _call_model, then append the assistant response.
-        Returns: text, metadata, raw_response, updated_messages
+        
+        Args:
+            prompt_or_messages: Either a string prompt or a list of message dictionaries
+            mode: The generation mode (e.g., "standard", "vision")
+            image_urls: Optional list of image URLs to include in the prompt
+            system_prompt: Optional system prompt to guide the model's behavior
+            
+        Returns:
+            Tuple containing:
+                - text: The generated text response
+                - metadata: Dictionary with metadata about the generation
+                - raw_response: Raw response from the model provider
+                - updated_messages: The updated message history including the new response
         """
 
         self._block_if_needed()
@@ -100,7 +113,7 @@ class BaseModel:
                 print("[WARN] image_urls were provided but prompt_or_messages is already a list. Ignoring image_urls.")
 
         # Call the provider-specific implementation
-        text, metadata, raw = self._call_model(messages, mode)
+        text, metadata, raw = self._call_model(messages, mode, system_prompt)
 
         # Append assistant turn to history
         messages.append({"role": "assistant", "content": text})
@@ -110,7 +123,8 @@ class BaseModel:
     def _call_model(
         self,
         messages: List[Dict[str, str]],
-        mode: str
+        mode: str,
+        system_prompt: Optional[str] = None
     ) -> Tuple[str, Dict, Dict]:
         raise NotImplementedError
 
@@ -151,11 +165,11 @@ class OpenAIModel(BaseModel):
         # OpenAI Vision guidelines. Otherwise fall back to the default
         # behaviour.
         if image_urls:
-            content: List[Dict[str, object]] = [{"type": "text", "text": text}]
+            content: List[Dict[str, object]] = [{"type": "input_text", "text": text}]
             for url in image_urls:
                 content.append({
-                    "type": "image_url",
-                    "image_url": {"url": url}
+                    "type": "input_image",
+                    "image_url":  url
                 })
             return {"role": "user", "content": content}
 
@@ -164,46 +178,37 @@ class OpenAIModel(BaseModel):
     def _call_model(
         self,
         messages: List[Dict[str, str]],
-        mode: str
+        mode: str,
+        system_prompt: Optional[str] = None
     ) -> Tuple[str, Dict, Dict]:
         client = OpenAI()
 
         params: Dict[str, object] = {
             "model": self.model,
-            "messages": messages,
+            "input": messages,  # `input` accepts list of message dicts (text or multimodal)
             "temperature": 0,
             "user": "1",
-            "max_tokens": 1024,
+            "max_output_tokens": 1024,
         }
+
+        # Attach a system prompt via the `instructions` field when provided
+        if system_prompt:
+            params["instructions"] = system_prompt
 
         # include web-search tool if requested (feature-gated; may require beta access)
         if mode == "web-search":
             params["tools"] = [{"type": "web_search_preview"}]
 
         try:
-            # Use chat completions endpoint that supports vision-capable models
-            resp = client.chat.completions.create(**params)
+            resp = client.responses.create(**params)
         except Exception as e:
             return f"[ERROR] OpenAI request failed ({e})", {}, {}
 
-        # ------------------------------------------------------------------
-        # Extract assistant text – guarding against unexpected response shapes
-        # ------------------------------------------------------------------
-        text: str = ""
-        if getattr(resp, "choices", None):
-            choice = resp.choices[0]
-            if getattr(choice, "message", None):
-                text = getattr(choice.message, "content", "") or ""
-
+        text = getattr(resp, "output_text", None)
         if not text:
-            return "[ERROR] Empty response from OpenAI", {}, getattr(resp, "__dict__", {})
+            return "[ERROR] Empty response from OpenAI", {}, resp.__dict__
 
-        metadata = {
-            "model": getattr(resp, "model", None),
-            "usage": getattr(resp, "usage", {}),
-            "id": getattr(resp, "id", None),
-        }
-
+        metadata = getattr(resp, "output", {})
         return text.strip(), metadata, resp
 
 class AnthropicModel(BaseModel):
@@ -216,14 +221,19 @@ class AnthropicModel(BaseModel):
     def _call_model(
         self,
         messages: List[Dict[str, str]],
-        mode: str
+        mode: str,
+        system_prompt: Optional[str] = None
     ) -> Tuple[str, Dict, Dict]:
-        resp = self.client.messages.create(
-            model=self.model,
-            messages=messages,
-            max_tokens=1024,
-            temperature=0
-        )
+        kwargs = {
+            "model": self.model,
+            "messages": messages,
+            "max_tokens": 1024,
+            "temperature": 0,
+        }
+        if system_prompt:
+            kwargs["system"] = system_prompt
+
+        resp = self.client.messages.create(**kwargs)
         metadata = {
             "model":     getattr(resp, "model", None),
             "usage":     getattr(resp, "usage", {}),
@@ -253,10 +263,11 @@ class AnthropicModel(BaseModel):
         string beginning with `data:` or already base64 we embed directly.
         """
 
-        # Build content blocks list beginning with the text prompt.
-        content_blocks: List[Dict[str, object]] = [
-            {"type": "text", "text": text}
-        ]
+        # Start with an empty list and add text block only if provided
+        content_blocks: List[Dict[str, object]] = []
+
+        if text and text.strip():
+            content_blocks.append({"type": "text", "text": text})
 
         if image_urls:
             for url in image_urls:
@@ -341,7 +352,8 @@ class GeminiModel(BaseModel):
     def _call_model(
         self,
         messages: List[Dict[str, str]],
-        mode: str
+        mode: str,
+        system_prompt: Optional[str] = None
     ) -> Tuple[str, Dict, Dict]:
         tools = []
 
@@ -375,16 +387,21 @@ class GeminiModel(BaseModel):
         elif mode == "web-search" or len(messages) > 1:
             tools = [Tool(google_search=GoogleSearch())]
 
+        config_kwargs = {
+            "tools": tools,
+            "response_modalities": ["TEXT"],
+            "max_output_tokens": 8000,
+            "temperature": 0,
+        }
+        if system_prompt:
+            # Gemini SDK uses `system_instruction` for system prompts
+            config_kwargs["system_instruction"] = system_prompt
+
         try:
             response = self.client.models.generate_content(
                 model=self.model,
                 contents=content_objects,
-                config=GenerateContentConfig(
-                    tools=tools,
-                    response_modalities=["TEXT"],
-                    max_output_tokens=8000,
-                    temperature=0,
-                )
+                config=GenerateContentConfig(**config_kwargs)
             )
         except errors.APIError as e:
             print(e.code)
