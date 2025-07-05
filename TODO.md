@@ -5,4 +5,5 @@
     - Hay contenido extra? Hay contenido que falta? 
     - Que tipo de contenido extra agrego y por que crees que sucedio?
     - *Tomar en cuenta que la respuesta puede estar contaminada porque LLMs fueron entrenados en este dataset.
-4. Mejorar la manera en la que visualizamos las imagenes simultaneamente (muy pequeno y solo podemos ver una a la vez)
+4. Mejorar la manera en la que visualizamos las imagenes simultaneamente (muy pequeno y solo podemos ver una a la vez).
+5. Evaluar posibilidad de que los LLMs puedan estar respondiendo bien unicamente por el hecho de que han "visto" la data y las preguntas en VizWiz. Despues de hacer todo nuestro analisis inicial con VizWiz y derivar conclusiones, probar sistema con Eyevisor/VisionPal dataset y ver si sigue funcionando "bien". A partir de esto, ver si un modelo u otro generaliza bien a otras fotos.
