@@ -1,0 +1,592 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionRAG Validation Evaluation Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        .summary-card .number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .filters {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-group label {
+            font-weight: bold;
+            color: #333;
+        }
+        .filter-select {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+        .results-table th {
+            background: #007bff;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #0056b3;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .results-table td {
+            padding: 8px 6px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+        .results-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .results-table tr:hover {
+            background: #e3f2fd;
+        }
+        .image-cell {
+            text-align: center;
+            width: 180px;
+        }
+        .image-cell img {
+            max-width: 160px;
+            max-height: 160px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .question-cell {
+            width: 200px;
+            max-width: 200px;
+        }
+        .similar-images-cell {
+            width: 300px;
+            max-width: 300px;
+        }
+        .similar-item {
+            background: #f0f0f0;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            border-left: 3px solid #007bff;
+            position: relative;
+        }
+        .similar-item img {
+            max-width: 60px;
+            max-height: 60px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            float: left;
+            margin-right: 8px;
+        }
+        .similar-item-content {
+            overflow: hidden;
+            font-size: 11px;
+        }
+        .distance-score {
+            font-weight: bold;
+            color: #007bff;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .response-cell {
+            width: 300px;
+            max-width: 300px;
+        }
+        .response-content {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+            background: #f9f9f9;
+            border-radius: 3px;
+            margin-bottom: 5px;
+        }
+        .error-cell {
+            background: #fff3cd;
+            color: #856404;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .processing-time {
+            font-size: 10px;
+            color: #666;
+        }
+        .toggle-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+            margin: 2px;
+        }
+        .toggle-button:hover {
+            background: #0056b3;
+        }
+        .collapsible-content {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 3px;
+            font-size: 11px;
+            background: #f9f9f9;
+        }
+        .hidden {
+            display: none;
+        }
+        .context-column {
+            background: #e8f5e8;
+            border-left: 3px solid #28a745;
+        }
+        .no-context-column {
+            background: #ffeaea;
+            border-left: 3px solid #dc3545;
+        }
+        .context-header {
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 5px;
+            padding: 3px;
+            border-radius: 3px;
+        }
+        .context-header.with {
+            background: #28a745;
+            color: white;
+        }
+        .context-header.without {
+            background: #dc3545;
+            color: white;
+        }
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+        }
+        .modal-content img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>VisionRAG Validation Evaluation Report</h1>
+            <p>Generated on 2025-07-05 15:23:54</p>
+        </div>
+        
+        <div class="summary">
+            <div class="summary-card">
+                <h3>Total Samples</h3>
+                <div class="number">6</div>
+            </div>
+            <div class="summary-card">
+                <h3>Successful</h3>
+                <div class="number">6</div>
+            </div>
+            <div class="summary-card">
+                <h3>Success Rate</h3>
+                <div class="number">100.0%</div>
+            </div>
+            <div class="summary-card">
+                <h3>With Context</h3>
+                <div class="number">3</div>
+            </div>
+            <div class="summary-card">
+                <h3>Without Context</h3>
+                <div class="number">3</div>
+            </div>
+            <div class="summary-card">
+                <h3>Models Tested</h3>
+                <div class="number">1</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label>
+                    <input type="checkbox" id="showWithContext" checked onchange="toggleColumns()"> Show With Context
+                </label>
+            </div>
+            <div class="filter-group">
+                <label>
+                    <input type="checkbox" id="showWithoutContext" checked onchange="toggleColumns()"> Show Without Context
+                </label>
+            </div>
+            <div class="filter-group">
+                <label for="modelFilter">Model:</label>
+                <select id="modelFilter" class="filter-select" onchange="filterResults()">
+                    <option value="all">All Models</option>
+        <option value="gemini_demo">gemini_demo</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="statusFilter">Status:</label>
+                <select id="statusFilter" class="filter-select" onchange="filterResults()">
+                    <option value="all">All</option>
+                    <option value="success">Success Only</option>
+                    <option value="error">Errors Only</option>
+                </select>
+            </div>
+        </div>
+        
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Query Image</th>
+                    <th>Real Question</th>
+                    <th>Ground Truth</th>
+                    <th>Model</th>
+                    <th>Similar Images</th>
+                    <th class="with-context-col">With Context Response</th>
+                    <th class="without-context-col">Without Context Response</th>
+                    <th>Processing Time</th>
+                </tr>
+            </thead>
+            <tbody>
+        
+                <tr class="result-row" data-model="gemini_demo" data-status="success">
+                    <td>2</td>
+                    <td class="image-cell">
+                        <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00016783.jpg" alt="Query Image 2" onclick="openImageModal(this.src)">
+                    </td>
+                    <td class="question-cell">Can you tell me what kind of vehicle this is?</td>
+                    <td class="question-cell">utility truck</td>
+                    <td>gemini_demo</td>
+                    <td class="similar-images-cell">
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00008514.jpg" alt="Similar 1" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#1 (d:1.090)</span>
+                                <strong>Q:</strong> Do the greyest clouds this morning look like storm clouds, or just regular clouds? <br>
+                                <strong>A:</strong> regular
+                            </div>
+                        </div>
+                    
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00013712.jpg" alt="Similar 2" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#2 (d:1.252)</span>
+                                <strong>Q:</strong> i'm trying to find a chair in the yard, i believe its somewhere in the area where i am. it's metal chair with arms on it<br>
+                                <strong>A:</strong> unanswerable
+                            </div>
+                        </div>
+                    
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00017156.jpg" alt="Similar 3" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#3 (d:1.290)</span>
+                                <strong>Q:</strong> The sky like in this picture?<br>
+                                <strong>A:</strong> clear
+                            </div>
+                        </div>
+                    </td>
+                    <td class="context-column with-context-col">
+                        <div class="context-header with">WITH CONTEXT</div>
+                        <div class="response-content">A white utility truck with a beige service bed is parked on an asphalt road, towing a trailer with a large black box. The sky above is overcast and light grey, not appearing stormy. There are houses and trees in the background, but no chairs are visible in the yard or elsewhere.</div>
+                        <button class="toggle-button" onclick="togglePrompt(this)">Show Prompt</button>
+                        <div class="collapsible-content" style="display: none;">You goal is to optimize your first response to answer the example questions briefly and to the point but also describing the image.<br> For images with similar visual context, users typically ask the following questions:<br> - Do the greyest clouds this morning look like storm clouds, or just regular clouds? <br> - i'm trying to find a chair in the yard, i believe its somewhere in the area where i am. it's metal chair with arms on it<br> - The sky like in this picture?<br><br>Here is the first picture that you must give a description of.</div>
+                        <div class="processing-time">7.89s</div>
+                    </td>
+                    <td class="no-context-column without-context-col">
+                        <div class="context-header without">WITHOUT CONTEXT</div>
+                        <div class="response-content">A white utility truck is parked on an asphalt street, facing right. The truck has a crew cab and a beige utility bed with various tools and equipment visible, including a red generator and two orange warning lights on top. Attached to the back of the truck is a yellow trailer carrying a large, dark rectangular object. In the background, there are two houses with pitched roofs and trees. The house on the left is light green with white trim, and the house on the right is light cream with a dark roof.<br><br>On the side of the white truck, there is a blue and white logo that reads:<br>MIKELS<br>CONST. CO., INC.<br>713-691-5162 • HOUSTON, TX<br>Below that, it says:<br>US DOT 489158</div>
+                        <button class="toggle-button" onclick="togglePrompt(this)">Show Prompt</button>
+                        <div class="collapsible-content" style="display: none;">Here is the first picture that you must give a description of.</div>
+                        <div class="processing-time">3.20s</div>
+                    </td>
+                    <td>
+                        <span class="processing-time">11.09s total</span>
+                    </td>
+                </tr>
+            
+                <tr class="result-row" data-model="gemini_demo" data-status="success">
+                    <td>11</td>
+                    <td class="image-cell">
+                        <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00011916.jpg" alt="Query Image 11" onclick="openImageModal(this.src)">
+                    </td>
+                    <td class="question-cell">Can you tell me what this is, please?</td>
+                    <td class="question-cell">sodastream raspberry</td>
+                    <td>gemini_demo</td>
+                    <td class="similar-images-cell">
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00010871.jpg" alt="Similar 1" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#1 (d:1.053)</span>
+                                <strong>Q:</strong> What is this bottle?<br>
+                                <strong>A:</strong> unanswerable
+                            </div>
+                        </div>
+                    
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00005050.jpg" alt="Similar 2" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#2 (d:1.076)</span>
+                                <strong>Q:</strong> Can you read the label on this bottle?<br>
+                                <strong>A:</strong> aloe green tea
+                            </div>
+                        </div>
+                    
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00013289.jpg" alt="Similar 3" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#3 (d:1.123)</span>
+                                <strong>Q:</strong> What is this?<br>
+                                <strong>A:</strong> soy milk
+                            </div>
+                        </div>
+                    </td>
+                    <td class="context-column with-context-col">
+                        <div class="context-header with">WITH CONTEXT</div>
+                        <div class="response-content">A white bottle of Sodastream Raspberry Flavoured Drink Concentrate is shown, with a label that reads "Sodastream Raspberry Flavoured Drink Concentrate With sugar and sweeteners". The label also provides instructions to "Dilute 1 + 23 parts water" and "How to make your soda" with three steps: 1. Fill the bottle with cold water and carbonate, 2. Fill measuring cap with sodamix, and 3. Pour slowly into the bottle. Nutritional information for drink as reconstituted is listed, including Energy (160.0 kJ / 38.2 kcal per serving, 64.0 kJ / 15.3 kcal per 100 ml), Proteins (0.0 g), Fats (0.0 g), saturated (0.0 g), Carbohydrate (9.0 g), sugars (9.0 g), and Sodium (16.2 mg). Storage instructions state "Best stored between 10°C-23°C or refrigerate after opening".</div>
+                        <button class="toggle-button" onclick="togglePrompt(this)">Show Prompt</button>
+                        <div class="collapsible-content" style="display: none;">You goal is to optimize your first response to answer the example questions briefly and to the point but also describing the image.<br> For images with similar visual context, users typically ask the following questions:<br> - What is this bottle?<br> - Can you read the label on this bottle?<br> - What is this?<br><br>Here is the first picture that you must give a description of.</div>
+                        <div class="processing-time">3.47s</div>
+                    </td>
+                    <td class="no-context-column without-context-col">
+                        <div class="context-header without">WITHOUT CONTEXT</div>
+                        <div class="response-content">A white bottle label. The label is for Sodastream Raspberry flavoured drink concentrate, which is designed to be diluted 1 part concentrate to 23 parts water, yielding 48 servings.<br><br>The label provides instructions on "How to make your soda" in three steps, each with a corresponding icon:<br>1.  Fill the bottle with cold water and carbonate. (Icon shows a bottle with bubbles)<br>2.  Fill measuring cap with sodamix. (Icon shows a bottle pouring into a measuring cap)<br>3.  Pour slowly into the bottle and gently tilt to mix. (Icon shows a measuring cap pouring into a bottle with pink liquid)<br><br>The ingredients when reconstituted are listed as: Carbonated Water (Water, Carbon dioxide), Sugar, Flavour, Food Acid (Citric Acid - 330), Non-nutritive Sweeteners (Sucralose, Acesulfame Potassium), Acidity regulator (Sodium Citrate - 331), Colour (E122), Preservative (Sodium Benzoate - 211).<br><br>A nutritional information table for the drink as reconstituted is provided:<br>Servings per package: 48<br>Serving Size: 250 ml<br><br>Average quantity per serving (250 ml) / Average quantity per 100 ml<br>Energy: 160.0 kJ / 38.2 kcal / 64.0 kJ / 15.3 kcal<br>Proteins: 0.0 g / 0.0 g<br>Fats: 0.0 g / 0.0 g<br>Saturated: 0.0 g / 0.0 g<br>Carbohydrate: 9.0 g / 3.6 g<br>Sugars: 9.0 g / 3.6 g<br>Sodium: 16.2 mg / 6.5 mg<br><br>At the bottom, storage instructions state: "Best stored between 10°C-23°C or refrigerate after opening." A "Best before:" line is also visible, but the date is not shown.</div>
+                        <button class="toggle-button" onclick="togglePrompt(this)">Show Prompt</button>
+                        <div class="collapsible-content" style="display: none;">Here is the first picture that you must give a description of.</div>
+                        <div class="processing-time">6.93s</div>
+                    </td>
+                    <td>
+                        <span class="processing-time">10.40s total</span>
+                    </td>
+                </tr>
+            
+                <tr class="result-row" data-model="gemini_demo" data-status="success">
+                    <td>14</td>
+                    <td class="image-cell">
+                        <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00002353.jpg" alt="Query Image 14" onclick="openImageModal(this.src)">
+                    </td>
+                    <td class="question-cell">What is in this bottle?</td>
+                    <td class="question-cell">apple juice</td>
+                    <td>gemini_demo</td>
+                    <td class="similar-images-cell">
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00010594.jpg" alt="Similar 1" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#1 (d:0.792)</span>
+                                <strong>Q:</strong> What is this please?<br>
+                                <strong>A:</strong> soup
+                            </div>
+                        </div>
+                    
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00015105.jpg" alt="Similar 2" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#2 (d:0.854)</span>
+                                <strong>Q:</strong> the expiration date <br>
+                                <strong>A:</strong> unanswerable
+                            </div>
+                        </div>
+                    
+                        <div class="similar-item">
+                            <img src="https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00016942.jpg" alt="Similar 3" onclick="openImageModal(this.src)">
+                            <div class="similar-item-content">
+                                <span class="distance-score">#3 (d:0.860)</span>
+                                <strong>Q:</strong> What is this.<br>
+                                <strong>A:</strong> baked beans
+                            </div>
+                        </div>
+                    </td>
+                    <td class="context-column with-context-col">
+                        <div class="context-header with">WITH CONTEXT</div>
+                        <div class="response-content">A bottle of mustard vinaigrette is being held in the foreground. The bottle contains a yellowish-brown liquid and has a red label with the word "MUSTARD" visible at the top, along with an image of green leafy vegetables and red onion slices. The background is blurry, showing a metal shelving unit with various items. I cannot see an expiration date on the label.</div>
+                        <button class="toggle-button" onclick="togglePrompt(this)">Show Prompt</button>
+                        <div class="collapsible-content" style="display: none;">You goal is to optimize your first response to answer the example questions briefly and to the point but also describing the image.<br> For images with similar visual context, users typically ask the following questions:<br> - What is this please?<br> - the expiration date <br> - What is this.<br><br>Here is the first picture that you must give a description of.</div>
+                        <div class="processing-time">3.38s</div>
+                    </td>
+                    <td class="no-context-column without-context-col">
+                        <div class="context-header without">WITHOUT CONTEXT</div>
+                        <div class="response-content">A hand holds a clear glass bottle filled with a golden liquid, likely oil or dressing, in the foreground. The bottle has a red label with a black section at the top that shows the word "MUST" in white letters. Below this, on the red part of the label, there are blurry images of green leafy vegetables and a purple onion ring. The background is out of focus but shows a metal shelving unit with several shelves. On the top shelf, there's a red item and a woven basket filled with colorful pens or markers. The middle and bottom shelves are cluttered with various household items, including a blue basket or container and a pink package.</div>
+                        <button class="toggle-button" onclick="togglePrompt(this)">Show Prompt</button>
+                        <div class="collapsible-content" style="display: none;">Here is the first picture that you must give a description of.</div>
+                        <div class="processing-time">4.27s</div>
+                    </td>
+                    <td>
+                        <span class="processing-time">7.65s total</span>
+                    </td>
+                </tr>
+            
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="close" onclick="closeImageModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Full Size Image">
+        </div>
+    </div>
+    
+    <script>
+        function filterResults() {
+            const modelFilter = document.getElementById('modelFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            const rows = document.querySelectorAll('.result-row');
+            
+            rows.forEach(row => {
+                let show = true;
+                
+                // Model filter
+                if (modelFilter !== 'all') {
+                    const rowModel = row.getAttribute('data-model');
+                    if (modelFilter !== rowModel) {
+                        show = false;
+                    }
+                }
+                
+                // Status filter
+                if (statusFilter !== 'all') {
+                    const rowStatus = row.getAttribute('data-status');
+                    if (statusFilter !== rowStatus) {
+                        show = false;
+                    }
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+        
+        function toggleColumns() {
+            const showWithContext = document.getElementById('showWithContext').checked;
+            const showWithoutContext = document.getElementById('showWithoutContext').checked;
+            
+            const withContextCols = document.querySelectorAll('.with-context-col');
+            const withoutContextCols = document.querySelectorAll('.without-context-col');
+            
+            withContextCols.forEach(col => {
+                col.style.display = showWithContext ? '' : 'none';
+            });
+            
+            withoutContextCols.forEach(col => {
+                col.style.display = showWithoutContext ? '' : 'none';
+            });
+        }
+        
+        function togglePrompt(button) {
+            const content = button.nextElementSibling;
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                button.textContent = 'Hide Prompt';
+            } else {
+                content.style.display = 'none';
+                button.textContent = 'Show Prompt';
+            }
+        }
+        
+        function openImageModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = src;
+        }
+        
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside the image
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
+        

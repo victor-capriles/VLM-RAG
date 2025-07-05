@@ -10,6 +10,15 @@ import requests
 import cohere  # type: ignore
 import json
 
+
+# Load prompt from YAML file in configs
+_prompts_path = Path(__file__).resolve().parents[1] / "configs" / "prompts.yml"
+with open(_prompts_path, "r", encoding="utf-8") as _f:
+    _prompts = yaml.safe_load(_f)
+
+# Type-annotated constants
+SYSTEM_PROMPT: str = _prompts["be_my_ai_prompt"]
+
 # Flip for testing
 with_context = True
 fixed_validation = False
@@ -39,13 +48,6 @@ def cohere_generate_image_embedding(image_path: str) -> List[float]:
 
     return resp.embeddings.float
 
-# Load prompt from YAML file in configs
-_prompts_path = Path(__file__).resolve().parents[1] / "configs" / "prompts.yml"
-with open(_prompts_path, "r", encoding="utf-8") as _f:
-    _prompts = yaml.safe_load(_f)
-
-# Type-annotated constants
-SYSTEM_PROMPT: str = _prompts["be_my_ai_prompt"]
 
 # Edit these model identifiers to match what is available to your API key / account.
 MODEL_CONFIGS: List[Dict[str, str]] = [
