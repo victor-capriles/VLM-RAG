@@ -24,13 +24,14 @@ SYSTEM_PROMPT: str = _prompts["be_my_ai_prompt"]
 EVALUATION_CONFIG = {
     "with_context": True,
     "without_context": True,  # Run both modes for comparison
-    "top_k_similar": 3,
-    "max_validation_samples": None,  # None = all samples, or set to int for testing
+    "top_k_similar": 4,
+    "max_validation_samples": 100,  # Default to 3 samples for quick testing, set to None for all samples
+    "embedding_provider": "cohere",  # Provider used for embeddings and similarity search
 }
 
 # Model configurations
 MODEL_CONFIGS: List[Dict[str, str]] = [
-    {"name": "gemini_demo", "provider": "gemini", "model": "gemini-2.5-flash"},
+    {"name": "gemini-2.5-flash", "provider": "gemini", "model": "gemini-2.5-pro"},
     # Add other models as needed
     # {"name": "openai_demo", "provider": "openai", "model": "gpt-4o"},
     # {"name": "anthropic_demo", "provider": "anthropic", "model": "claude-3-sonnet-20240229"},
@@ -91,6 +92,8 @@ class ValidationEvaluator:
         
         print(f"Initialized evaluator with {len(self.validation_ids)} validation samples")
         print(f"Available models: {list(self.models.keys())}")
+        print(f"Embedding provider: {EVALUATION_CONFIG['embedding_provider']}")
+        print(f"Similar images per query: {EVALUATION_CONFIG['top_k_similar']}")
 
     def _load_original_data(self) -> Dict[str, Any]:
         """Load original VizWiz data."""
@@ -144,7 +147,9 @@ class ValidationEvaluator:
 
     def _build_context_prompt(self, similar_images: Dict[str, Any]) -> str:
         """Build context prompt from similar images."""
-        prompt = """You goal is to optimize your first response to answer the example questions briefly and to the point but also describing the image.\n For images with similar visual context, users typically ask the following questions:"""
+        prompt = """Your goal is to optimize your first response to answer questions briefly and to the point but also describing the image according to what the user is most likely to need.
+
+For images with similar visual context, users typically ask the following questions:"""
         
         for res in similar_images["similar_images"]:
             metadata = res["metadata"]
@@ -167,6 +172,8 @@ class ValidationEvaluator:
             "validation_id": validation_id,
             "model_name": model_name,
             "with_context": with_context,
+            "embedding_provider": EVALUATION_CONFIG["embedding_provider"],
+            "top_k_similar": EVALUATION_CONFIG["top_k_similar"],
             "image_url": image_url,
             "real_question": real_question,
             "crowd_majority": crowd_majority,
@@ -201,9 +208,13 @@ class ValidationEvaluator:
                     
                     prompt = self._build_context_prompt(similar_images)
                 else:
-                    prompt = "Here is the first picture that you must give a description of."
+                    prompt = """Your goal is to optimize your first response to answer questions briefly and to the point but also describing the image according to what the user is most likely to need.
+                    
+                    Here is the first picture that you must give a description of."""
             else:
-                prompt = "Here is the first picture that you must give a description of."
+                prompt = """Your goal is to optimize your first response to answer questions briefly and to the point but also describing the image according to what the user is most likely to need.
+                
+                Here is the first picture that you must give a description of."""
             
             result["prompt_used"] = prompt
             
@@ -272,576 +283,6 @@ class ValidationEvaluator:
         print(f"Evaluation completed. Results saved to: {output_path}")
         return str(output_path)
 
-    def generate_html_report(self, jsonl_path: str, html_filename: Optional[str] = None) -> str:
-        """Generate HTML report from JSONL results."""
-        if html_filename is None:
-            base_name = Path(jsonl_path).stem
-            html_filename = f"{base_name}_report.html"
-        
-        html_path = self.results_path / html_filename
-        
-        # Load results
-        results = []
-        with open(jsonl_path, "r", encoding="utf-8") as f:
-            for line in f:
-                results.append(json.loads(line.strip()))
-        
-        # Generate HTML
-        html_content = self._generate_html_content(results)
-        
-        with open(html_path, "w", encoding="utf-8") as f:
-            f.write(html_content)
-        
-        print(f"HTML report generated: {html_path}")
-        return str(html_path)
-
-    def _generate_html_content(self, results: List[Dict[str, Any]]) -> str:
-        """Generate HTML content for the evaluation report."""
-        # Group results by validation_id and model to create consolidated rows
-        grouped_results = {}
-        for result in results:
-            key = (result['validation_id'], result['model_name'])
-            if key not in grouped_results:
-                grouped_results[key] = {'with_context': None, 'without_context': None}
-            
-            if result.get('with_context'):
-                grouped_results[key]['with_context'] = result
-            else:
-                grouped_results[key]['without_context'] = result
-        
-        # Calculate summary statistics
-        total_samples = len(results)
-        successful_samples = len([r for r in results if not r.get("error")])
-        models_tested = list(set(r["model_name"] for r in results))
-        with_context_count = len([r for r in results if r.get("with_context")])
-        without_context_count = len([r for r in results if not r.get("with_context")])
-        
-        html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VisionRAG Validation Evaluation Report</title>
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }}
-        .container {{
-            max-width: 1600px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }}
-        .header {{
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #eee;
-        }}
-        .summary {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }}
-        .summary-card {{
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            text-align: center;
-        }}
-        .summary-card h3 {{
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 14px;
-        }}
-        .summary-card .number {{
-            font-size: 20px;
-            font-weight: bold;
-            color: #007bff;
-        }}
-        .filters {{
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }}
-        .filter-group {{
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }}
-        .filter-group label {{
-            font-weight: bold;
-            color: #333;
-        }}
-        .filter-select {{
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
-        }}
-        .results-table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 12px;
-        }}
-        .results-table th {{
-            background: #007bff;
-            color: white;
-            padding: 12px 8px;
-            text-align: left;
-            font-weight: bold;
-            border: 1px solid #0056b3;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }}
-        .results-table td {{
-            padding: 8px 6px;
-            border: 1px solid #ddd;
-            vertical-align: top;
-            word-wrap: break-word;
-        }}
-        .results-table tr:nth-child(even) {{
-            background: #f8f9fa;
-        }}
-        .results-table tr:hover {{
-            background: #e3f2fd;
-        }}
-        .image-cell {{
-            text-align: center;
-            width: 180px;
-        }}
-        .image-cell img {{
-            max-width: 160px;
-            max-height: 160px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-        }}
-        .question-cell {{
-            width: 200px;
-            max-width: 200px;
-        }}
-        .similar-images-cell {{
-            width: 300px;
-            max-width: 300px;
-        }}
-        .similar-item {{
-            background: #f0f0f0;
-            padding: 8px;
-            margin: 4px 0;
-            border-radius: 4px;
-            border-left: 3px solid #007bff;
-            position: relative;
-        }}
-        .similar-item img {{
-            max-width: 60px;
-            max-height: 60px;
-            border-radius: 3px;
-            border: 1px solid #ddd;
-            float: left;
-            margin-right: 8px;
-        }}
-        .similar-item-content {{
-            overflow: hidden;
-            font-size: 11px;
-        }}
-        .distance-score {{
-            font-weight: bold;
-            color: #007bff;
-            display: block;
-            margin-bottom: 2px;
-        }}
-        .response-cell {{
-            width: 300px;
-            max-width: 300px;
-        }}
-        .response-content {{
-            max-height: 150px;
-            overflow-y: auto;
-            padding: 5px;
-            background: #f9f9f9;
-            border-radius: 3px;
-            margin-bottom: 5px;
-        }}
-        .error-cell {{
-            background: #fff3cd;
-            color: #856404;
-            font-weight: bold;
-            padding: 5px;
-            border-radius: 3px;
-        }}
-        .processing-time {{
-            font-size: 10px;
-            color: #666;
-        }}
-        .toggle-button {{
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 2px 6px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 10px;
-            margin: 2px;
-        }}
-        .toggle-button:hover {{
-            background: #0056b3;
-        }}
-        .collapsible-content {{
-            max-height: 150px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 5px;
-            margin-top: 5px;
-            border-radius: 3px;
-            font-size: 11px;
-            background: #f9f9f9;
-        }}
-        .hidden {{
-            display: none;
-        }}
-        .context-column {{
-            background: #e8f5e8;
-            border-left: 3px solid #28a745;
-        }}
-        .no-context-column {{
-            background: #ffeaea;
-            border-left: 3px solid #dc3545;
-        }}
-        .context-header {{
-            font-weight: bold;
-            font-size: 11px;
-            margin-bottom: 5px;
-            padding: 3px;
-            border-radius: 3px;
-        }}
-        .context-header.with {{
-            background: #28a745;
-            color: white;
-        }}
-        .context-header.without {{
-            background: #dc3545;
-            color: white;
-        }}
-        .image-modal {{
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-        }}
-        .modal-content {{
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            max-width: 90%;
-            max-height: 90%;
-        }}
-        .modal-content img {{
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 8px;
-        }}
-        .close {{
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }}
-        .close:hover {{
-            color: #bbb;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>VisionRAG Validation Evaluation Report</h1>
-            <p>Generated on {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
-        </div>
-        
-        <div class="summary">
-            <div class="summary-card">
-                <h3>Total Samples</h3>
-                <div class="number">{total_samples}</div>
-            </div>
-            <div class="summary-card">
-                <h3>Successful</h3>
-                <div class="number">{successful_samples}</div>
-            </div>
-            <div class="summary-card">
-                <h3>Success Rate</h3>
-                <div class="number">{(successful_samples/total_samples*100):.1f}%</div>
-            </div>
-            <div class="summary-card">
-                <h3>With Context</h3>
-                <div class="number">{with_context_count}</div>
-            </div>
-            <div class="summary-card">
-                <h3>Without Context</h3>
-                <div class="number">{without_context_count}</div>
-            </div>
-            <div class="summary-card">
-                <h3>Models Tested</h3>
-                <div class="number">{len(models_tested)}</div>
-            </div>
-        </div>
-        
-        <div class="filters">
-            <div class="filter-group">
-                <label>
-                    <input type="checkbox" id="showWithContext" checked onchange="toggleColumns()"> Show With Context
-                </label>
-            </div>
-            <div class="filter-group">
-                <label>
-                    <input type="checkbox" id="showWithoutContext" checked onchange="toggleColumns()"> Show Without Context
-                </label>
-            </div>
-            <div class="filter-group">
-                <label for="modelFilter">Model:</label>
-                <select id="modelFilter" class="filter-select" onchange="filterResults()">
-                    <option value="all">All Models</option>
-        """
-        
-        # Add model options
-        for model in models_tested:
-            html += f'<option value="{model}">{model}</option>'
-        
-        html += """
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="statusFilter">Status:</label>
-                <select id="statusFilter" class="filter-select" onchange="filterResults()">
-                    <option value="all">All</option>
-                    <option value="success">Success Only</option>
-                    <option value="error">Errors Only</option>
-                </select>
-            </div>
-        </div>
-        
-        <table class="results-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Query Image</th>
-                    <th>Real Question</th>
-                    <th>Ground Truth</th>
-                    <th>Model</th>
-                    <th>Similar Images</th>
-                    <th class="with-context-col">With Context Response</th>
-                    <th class="without-context-col">Without Context Response</th>
-                    <th>Processing Time</th>
-                </tr>
-            </thead>
-            <tbody>
-        """
-        
-        # Add each grouped result as a table row
-        for (validation_id, model_name), result_pair in grouped_results.items():
-            with_result = result_pair['with_context']
-            without_result = result_pair['without_context']
-            
-            # Get common data (prefer with_context if available, otherwise without_context)
-            base_result = with_result if with_result else without_result
-            
-            # Build similar images display with actual images
-            similar_images_html = ""
-            if with_result and with_result.get("similar_images"):
-                for i, sim_img in enumerate(with_result["similar_images"]):
-                    similar_images_html += f"""
-                        <div class="similar-item">
-                            <img src="{sim_img.get('image_url', '')}" alt="Similar {i+1}" onclick="openImageModal(this.src)">
-                            <div class="similar-item-content">
-                                <span class="distance-score">#{i+1} (d:{sim_img['distance']:.3f})</span>
-                                <strong>Q:</strong> {sim_img['question']}<br>
-                                <strong>A:</strong> {sim_img['crowd_majority']}
-                            </div>
-                        </div>
-                    """
-            
-            # Build response cells
-            with_context_cell = ""
-            without_context_cell = ""
-            
-            if with_result:
-                if with_result.get("error"):
-                    with_context_cell = f'<div class="error-cell">Error: {with_result["error"]}</div>'
-                else:
-                    prompt_html = with_result.get('prompt_used', '').replace('\n', '<br>')
-                    response_html = with_result.get('llm_response', '').replace('\n', '<br>')
-                    with_context_cell = f"""
-                        <div class="context-header with">WITH CONTEXT</div>
-                        <div class="response-content">{response_html}</div>
-                        <button class="toggle-button" onclick="togglePrompt(this)">Show Prompt</button>
-                        <div class="collapsible-content" style="display: none;">{prompt_html}</div>
-                        <div class="processing-time">{with_result.get('processing_time', 0):.2f}s</div>
-                    """
-            else:
-                with_context_cell = '<div style="color: #999; font-style: italic;">Not evaluated</div>'
-            
-            if without_result:
-                if without_result.get("error"):
-                    without_context_cell = f'<div class="error-cell">Error: {without_result["error"]}</div>'
-                else:
-                    prompt_html = without_result.get('prompt_used', '').replace('\n', '<br>')
-                    response_html = without_result.get('llm_response', '').replace('\n', '<br>')
-                    without_context_cell = f"""
-                        <div class="context-header without">WITHOUT CONTEXT</div>
-                        <div class="response-content">{response_html}</div>
-                        <button class="toggle-button" onclick="togglePrompt(this)">Show Prompt</button>
-                        <div class="collapsible-content" style="display: none;">{prompt_html}</div>
-                        <div class="processing-time">{without_result.get('processing_time', 0):.2f}s</div>
-                    """
-            else:
-                without_context_cell = '<div style="color: #999; font-style: italic;">Not evaluated</div>'
-            
-            # Determine row status for filtering
-            has_error = (with_result and with_result.get("error")) or (without_result and without_result.get("error"))
-            status = "error" if has_error else "success"
-            
-            # Calculate total processing time
-            total_time = 0
-            if with_result:
-                total_time += with_result.get('processing_time', 0)
-            if without_result:
-                total_time += without_result.get('processing_time', 0)
-            
-            html += f"""
-                <tr class="result-row" data-model="{model_name}" data-status="{status}">
-                    <td>{validation_id}</td>
-                    <td class="image-cell">
-                        <img src="{base_result.get('image_url', '')}" alt="Query Image {validation_id}" onclick="openImageModal(this.src)">
-                    </td>
-                    <td class="question-cell">{base_result.get('real_question', 'N/A')}</td>
-                    <td class="question-cell">{base_result.get('crowd_majority', 'N/A')}</td>
-                    <td>{model_name}</td>
-                    <td class="similar-images-cell">{similar_images_html}</td>
-                    <td class="context-column with-context-col">{with_context_cell}</td>
-                    <td class="no-context-column without-context-col">{without_context_cell}</td>
-                    <td>
-                        <span class="processing-time">{total_time:.2f}s total</span>
-                    </td>
-                </tr>
-            """
-        
-        html += """
-            </tbody>
-        </table>
-    </div>
-    
-    <!-- Image Modal -->
-    <div id="imageModal" class="image-modal">
-        <span class="close" onclick="closeImageModal()">&times;</span>
-        <div class="modal-content">
-            <img id="modalImage" src="" alt="Full Size Image">
-        </div>
-    </div>
-    
-    <script>
-        function filterResults() {
-            const modelFilter = document.getElementById('modelFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            
-            const rows = document.querySelectorAll('.result-row');
-            
-            rows.forEach(row => {
-                let show = true;
-                
-                // Model filter
-                if (modelFilter !== 'all') {
-                    const rowModel = row.getAttribute('data-model');
-                    if (modelFilter !== rowModel) {
-                        show = false;
-                    }
-                }
-                
-                // Status filter
-                if (statusFilter !== 'all') {
-                    const rowStatus = row.getAttribute('data-status');
-                    if (statusFilter !== rowStatus) {
-                        show = false;
-                    }
-                }
-                
-                row.style.display = show ? '' : 'none';
-            });
-        }
-        
-        function toggleColumns() {
-            const showWithContext = document.getElementById('showWithContext').checked;
-            const showWithoutContext = document.getElementById('showWithoutContext').checked;
-            
-            const withContextCols = document.querySelectorAll('.with-context-col');
-            const withoutContextCols = document.querySelectorAll('.without-context-col');
-            
-            withContextCols.forEach(col => {
-                col.style.display = showWithContext ? '' : 'none';
-            });
-            
-            withoutContextCols.forEach(col => {
-                col.style.display = showWithoutContext ? '' : 'none';
-            });
-        }
-        
-        function togglePrompt(button) {
-            const content = button.nextElementSibling;
-            if (content.style.display === 'none') {
-                content.style.display = 'block';
-                button.textContent = 'Hide Prompt';
-            } else {
-                content.style.display = 'none';
-                button.textContent = 'Show Prompt';
-            }
-        }
-        
-        function openImageModal(src) {
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            modal.style.display = 'block';
-            modalImg.src = src;
-        }
-        
-        function closeImageModal() {
-            document.getElementById('imageModal').style.display = 'none';
-        }
-        
-        // Close modal when clicking outside the image
-        window.onclick = function(event) {
-            const modal = document.getElementById('imageModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
-</body>
-</html>
-        """
-        
-        return html
-
 
 def main():
     """Main function to run the evaluation."""
@@ -854,14 +295,10 @@ def main():
     # Run evaluation
     jsonl_path = evaluator.run_evaluation()
     
-    # Generate HTML report
-    html_path = evaluator.generate_html_report(jsonl_path)
-    
     print("\n" + "=" * 50)
     print("Evaluation completed successfully!")
     print(f"Results saved to: {jsonl_path}")
-    print(f"HTML report: {html_path}")
-    print("\nYou can open the HTML file in your browser to view the results.")
+    print("\nYou can analyze the JSONL file to review the evaluation results.")
 
 
 if __name__ == "__main__":
