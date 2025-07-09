@@ -147,16 +147,20 @@ class ValidationEvaluator:
 
     def _build_context_prompt(self, similar_images: Dict[str, Any]) -> str:
         """Build context prompt from similar images."""
-        prompt = """Your goal is to optimize your first response to answer questions briefly and to the point but also describing the image according to what the user is most likely to need.
-
-For images with similar visual context, users typically ask the following questions:"""
+        prompt = """Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.
+        
+        We have retrieved pictures with similar visual context. In these pictures, users asked the following questions:"""
         
         for res in similar_images["similar_images"]:
             metadata = res["metadata"]
             question = metadata.get("question", "No question available")
             prompt += f"\n - {question}"
         
-        prompt += "\n\nHere is the first picture that you must give a description of."
+        prompt += "\nUse these questions as a guide for what kind of information is important to users."
+
+        prompt += "\nIf the past questions are not relevant to the picture, you can ignore them and prioritize describing it based on the user's most likely needs."
+
+        prompt += "\nHere is the first picture that you must give a description of."
         return prompt
 
     def _evaluate_single_sample(self, validation_id: str, model_name: str, model: Any, with_context: bool) -> Dict[str, Any]:
@@ -208,13 +212,13 @@ For images with similar visual context, users typically ask the following questi
                     
                     prompt = self._build_context_prompt(similar_images)
                 else:
-                    prompt = """Your goal is to optimize your first response to answer questions briefly and to the point but also describing the image according to what the user is most likely to need.
+                    prompt = """Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.
                     
                     Here is the first picture that you must give a description of."""
             else:
-                prompt = """Your goal is to optimize your first response to answer questions briefly and to the point but also describing the image according to what the user is most likely to need.
-                
-                Here is the first picture that you must give a description of."""
+                prompt = """Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.
+                    
+                    Here is the first picture that you must give a description of."""
             
             result["prompt_used"] = prompt
             

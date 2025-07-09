@@ -2,6 +2,7 @@ import os
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import chromadb
+import chromadb.utils.embedding_functions as embedding_functions
 
 
 class SimpleVectorDB:
@@ -37,9 +38,16 @@ class SimpleVectorDB:
         """
         metadata = {"description": description} if description else {}
         
+        multimodal_cohere_ef = embedding_functions.CohereEmbeddingFunction(
+            model_name="embed-v4.0",
+            api_key=os.getenv("COHERE_API_KEY"),
+        )   
+
+
         collection = self.client.get_or_create_collection(
             name=collection_name,
-            metadata=metadata
+            metadata=metadata,
+            embedding_function=multimodal_cohere_ef
         )
         
         print(f"Collection '{collection_name}' ready")

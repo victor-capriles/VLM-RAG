@@ -9,8 +9,8 @@ import base64
 import requests
 import cohere  # type: ignore
 import json
-
-
+from dotenv import load_dotenv
+load_dotenv()
 # Load prompt from YAML file in configs
 _prompts_path = Path(__file__).resolve().parents[1] / "configs" / "prompts.yml"
 with open(_prompts_path, "r", encoding="utf-8") as _f:
