@@ -7,18 +7,22 @@ import chromadb.utils.embedding_functions as embedding_functions
 
 # class for normalizing embeddings from cohere embed-v4.0
 class NormalizeEmbeddingsFunction:
-    def __init__(self, model_name: str, api_key:str):
+    def __init__(self, model_name: str, api_key: str):
         self.base_fn = embedding_functions.CohereEmbeddingFunction(
             model_name=model_name,
             api_key=api_key
         )
 
-    def __call__(self, texts):
-        raw_embeddings = self.base_fn(texts)
+    def __call__(self, input: List[str]) -> List[List[float]]:
+        # Call base function using Cohere-compatible keyword argument
+        raw_embeddings = self.base_fn(texts=input)  # Cohere uses 'texts'
+        
+        # Normalize each embedding to unit length
         return [
             (np.array(e) / np.linalg.norm(e)).tolist()
             for e in raw_embeddings
         ]
+
 
 class SimpleVectorDB:
     def __init__(self, db_path="./data/chroma_db"):
