@@ -6,7 +6,7 @@ import chromadb
 import chromadb.utils.embedding_functions as embedding_functions
 
 
-
+        
 class SimpleVectorDB:
     def __init__(self, db_path="./data/chroma_db"):
         """
@@ -40,7 +40,7 @@ class SimpleVectorDB:
         """
         metadata = {"description": description} if description else {}
         
-        multimodal_cohere_ef = embedding_functions.CohereEmbeddingFunction(
+        multimodal_cohere_ef =  embedding_functions.CohereEmbeddingFunction(
             model_name="embed-v4.0",
             api_key=os.getenv("COHERE_API_KEY"),
         )   
