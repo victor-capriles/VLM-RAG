@@ -1,9 +1,24 @@
 import os
 from typing import Dict, Any, List, Optional
 from datetime import datetime
+import numpy as np
 import chromadb
 import chromadb.utils.embedding_functions as embedding_functions
 
+# class for normalizing embeddings from cohere embed-v4.0
+class NormalizeEmbeddingsFunction:
+    def __init__(self, model_name: str, api_key:str):
+        self.base_fn = embedding_functions.CohereEmbeddingFunction(
+            model_name=model_name,
+            api_key=api_key
+        )
+
+    def __call__(self, texts):
+        raw_embeddings = self.base_fn(texts)
+        return [
+            (np.array(e) / np.linalg.norm(e)).tolist()
+            for e in raw_embeddings
+        ]
 
 class SimpleVectorDB:
     def __init__(self, db_path="./data/chroma_db"):
@@ -38,16 +53,24 @@ class SimpleVectorDB:
         """
         metadata = {"description": description} if description else {}
         
-        multimodal_cohere_ef = embedding_functions.CohereEmbeddingFunction(
+        multimodal_cohere_ef = NormalizeEmbeddingsFunction(
             model_name="embed-v4.0",
             api_key=os.getenv("COHERE_API_KEY"),
         )   
 
 
+        # collection with distance metric, COSINE similarity
         collection = self.client.get_or_create_collection(
             name=collection_name,
             metadata=metadata,
-            embedding_function=multimodal_cohere_ef
+            embedding_function=multimodal_cohere_ef,
+            configuration={
+                "hnsw": {
+                    "space": "cosine",
+                    "ef_construction": 100 # default. controls how well the index is constructed. 
+
+                }
+            }
         )
         
         print(f"Collection '{collection_name}' ready")
@@ -194,8 +217,11 @@ class SimpleVectorDB:
             else:
                 raise ValueError("No collection specified and no current collection set. Use use_collection() first.")
             
+            # normalize query embedding for COSINE similarity
+            norm_query = (np.array(query_embedding) / np.linalg.norm(query_embedding)).tolist()
+            
             results = collection.query(
-                query_embeddings=query_embedding,
+                query_embeddings=[norm_query],
                 n_results=n_results
             )
             
