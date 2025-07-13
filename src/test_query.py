@@ -70,7 +70,7 @@ sys.path.append(os.path.dirname(__file__))
 # Initialize vector DB (will open existing persisted chroma_db)
 CHROMA_PATH = Path(__file__).resolve().parents[1] / "notebooks" / "data" / "chroma_db"
 db: SimpleVectorDB = SimpleVectorDB(db_path=str(CHROMA_PATH))
-db.use_collection("vizwiz_500_sample", "500 random VizWiz samples") 
+db.use_collection("vizwiz_500_sample_cosine", "500 random VizWiz samples") 
 # Print database stats to validate collection
 print(f"Database stats: {db.get_collection_stats()}")
 
@@ -146,7 +146,7 @@ for p in EMB_PATHS:
         break
 
 # ------------------------------------------------------------
-PROMPT: str = "Here is the first picture that you must give a description of."
+PROMPT: str = "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\nHere is the first picture that you must give a description of."
 
 if with_context:
     # --- Similarity search using precomputed embedding for validation_id ---
@@ -167,7 +167,8 @@ if with_context:
                 # Extract and display metadata from similar images
                 print("\nSimilar Image Questions:")
 
-                PROMPT = """You goal is to optimize your first response to answer the example questions briefly and to the point but also describing the image.\n For images with similar visual context, users typically ask the following questions:"""
+                PROMPT = "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\n"
+                PROMPT += "We have retrieved pictures with similar visual context. In these pictures, users asked the following questions:"
                 
                 for idx, res in enumerate(sim_results["similar_images"]):
                     metadata = res["metadata"]
@@ -183,7 +184,9 @@ if with_context:
                     print(f"     Distance: {res['distance']:.3f}")
                     print()
                 
-                PROMPT += "\n\nHere is the first picture that you must give a description of."
+                PROMPT += "\n\nUse these questions as a guide for what kind of information is important to users."
+                PROMPT += "\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features."
+                PROMPT += "\nHere is the first picture that you must give a description of."
                 
             except Exception as e:
                 print(f"Similarity search failed: {e}")

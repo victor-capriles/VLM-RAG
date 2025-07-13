@@ -102,7 +102,7 @@ class ValidationEvaluator:
             prompt += f"\n - {res['metadata'].get('question', 'No question available')}"
         
         prompt += "\n\nUse these questions as a guide for what kind of information is important to users."
-        prompt += "\nIf the past questions are not relevant, ignore them and prioritize describing the image's most prominent features."
+        prompt += "\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features."
         prompt += "\nHere is the first picture that you must give a description of."
         return prompt
 
