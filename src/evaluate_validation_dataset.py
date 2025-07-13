@@ -19,7 +19,7 @@ SYSTEM_PROMPT: str = _prompts["be_my_ai_prompt"]
 
 # Evaluation Configuration
 EVALUATION_CONFIG = {
-    "embedding_provider": "cohere",  # Choose 'cohere' or 'openclip'
+    "embedding_provider": "openclip",  # Choose 'cohere' or 'openclip'
     "with_context": True,
     "without_context": True,
     "top_k_similar": 4,

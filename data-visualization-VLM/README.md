@@ -1,18 +1,50 @@
-# Vision RAG Evaluation Viewer
+# Vision Language Model (VLM) Evaluation Dashboard
 
-A dynamic SvelteKit web application for visualizing and comparing Vision RAG (Retrieval Augmented Generation) evaluation results. This tool allows users to upload JSONL files containing evaluation data and provides an interactive interface for filtering and comparing model performance with and without context.
+A comprehensive SvelteKit web application for evaluating and analyzing Vision Language Model responses. This tool provides an interactive dashboard for scoring model performance, analyzing response quality, and comparing different models and embedding providers across various metrics.
 
 ## Features
 
+### 🔍 **Evaluation System**
+
+- **4-Point Scoring Scale**: Rate responses as Direct (3pts), Inferable (2pts), Missing/Incorrect (1pt), or Hallucination (0pts)
+- **Interactive Scoring**: Click category buttons to evaluate each response
+- **Context Impact Analysis**: Compare performance with and without context
+- **Progress Tracking**: Save and resume evaluations with export/import functionality
+
+### 📊 **Analytics Dashboard**
+
+- **Performance Metrics**: Track accuracy rates by model and embedding provider
+- **Category Analysis**: Identify which models produce the most Direct responses or Hallucinations
+- **Text Length Analytics**: Monitor response conciseness and verbosity patterns
+- **Similarity Scoring**: ChromaDB distance-based similarity ratings with color coding
+- **Visual Progress Bars**: Easy-to-read charts showing category distributions
+
+### 🎯 **Conciseness Monitoring**
+
+- **Word Count Tracking**: Automatic word counting for all responses
+- **Conciseness Categories**:
+  - Ideal (10-50 words) - Green
+  - Brief (<10 words) - Yellow
+  - Verbose (50-100 words) - Orange
+  - Long (100-150 words) - Red
+  - Excessive (>150 words) - Purple
+- **Length Impact Analysis**: Understand how response length affects quality
+
+### 🔧 **Data Management**
+
 - **File Upload**: Upload `.jsonl` files containing evaluation results
-- **Dynamic Filtering**: Filter results by:
-  - Model name
-  - Context type (with/without context)
-  - Embedding provider
-- **Side-by-Side Comparison**: Compare responses with and without context for each query
-- **Visual Context Display**: View query images and similar context images
-- **Responsive Design**: Works on desktop and mobile devices
-- **Error Handling**: Display processing errors and missing data gracefully
+- **Advanced Filtering**: Filter by model, context type, embedding provider
+- **Infinite Scroll**: Efficiently handle large datasets
+- **Export Progress**: Save evaluations with scores and analytics
+- **Data Validation**: Robust error handling and data integrity checks
+
+### 🎨 **User Interface**
+
+- **Responsive Design**: Works seamlessly on desktop and mobile
+- **Visual Similarity Indicators**: Color-coded distance ranges
+- **Interactive Modals**: Full-screen image viewing
+- **Sortable Columns**: Click headers to sort by different metrics
+- **Real-time Updates**: Live filtering and sorting
 
 ## Data Format
 
@@ -31,7 +63,8 @@ The application expects JSONL files where each line contains a JSON object with 
   "prompt_used": "string",
   "llm_response": "string",
   "error": "string|null",
-  "processing_time": number
+  "processing_time": number,
+  "chroma_distance": number
 }
 ```
 
@@ -48,6 +81,23 @@ The application expects JSONL files where each line contains a JSON object with 
 - `llm_response`: The model's response (null if error occurred)
 - `error`: Error message if processing failed
 - `processing_time`: Time taken to process the request in seconds
+- `chroma_distance`: ChromaDB similarity distance score
+
+## Evaluation Categories
+
+### Scoring System (4-Point Scale)
+
+- **🎯 Direct (3 points)**: Response directly and accurately answers the question
+- **🔍 Inferable (2 points)**: Answer can be reasonably inferred from the response
+- **❌ Missing/Incorrect (1 point)**: Response is incomplete or factually wrong
+- **🚫 Hallucination (0 points)**: Response contains fabricated or contradictory information
+
+### Similarity Ranges (ChromaDB Distance)
+
+- **🟢 Very Similar (0.0-0.2)**: Extremely close matches
+- **🔵 Similar (0.2-0.5)**: Good similarity matches
+- **🟠 Moderate Similarity (0.5-1.0)**: Reasonable matches
+- **🔴 Poor Similarity (>1.0)**: Distant or poor matches
 
 ## Getting Started
 
@@ -89,49 +139,82 @@ Preview the production build:
 npm run preview
 ```
 
-## Usage
+## Usage Guide
 
-1. **Upload Data**: Click "Choose File" and select a `.jsonl` file containing your evaluation results
-2. **Filter Results**: Use the dropdown filters to narrow down results by:
-   - Model (all models, or specific model names)
-   - Context (all, with context only, without context only)
-   - Embedding Provider (all providers, or specific providers)
-3. **Review Results**: Examine the table showing:
-   - Query images
-   - Question details and expected answers
-   - Model information
-   - Context images (if available)
-   - Side-by-side comparison of responses with and without context
-   - Processing times and error information
+### 1. **Upload Data**
+
+- Click "Choose File" and select a `.jsonl` file with your evaluation results
+- The system will automatically parse and group the data
+
+### 2. **Evaluate Responses**
+
+- Review each model response against the expected answer
+- Click the appropriate category button (Direct, Inferable, Missing, Hallucination)
+- Your evaluations are saved automatically
+
+### 3. **Use Dashboard Analytics**
+
+- Navigate to the Dashboard tab for comprehensive analytics
+- View top performers and category distributions
+- Analyze text length patterns and conciseness metrics
+- Compare models and embedding providers
+
+### 4. **Filter and Sort**
+
+- Use dropdown filters to focus on specific models or providers
+- Click column headers to sort by different metrics
+- Toggle between infinite scroll and "Show All" modes
+
+### 5. **Export Progress**
+
+- Click "Export Evaluations" to save your progress
+- The exported file includes all scores and analytics
+- Import the file later to resume evaluation
 
 ## Sample Data
 
-A sample data file is included at `static/sample-data.jsonl` for testing purposes. This file contains example evaluations across different models and embedding providers.
+Sample data files are included in the `static/` directory:
+
+- `sample-data.jsonl`: Basic example data for testing
+- `vizwiz-data.jsonl`: VizWiz dataset examples
 
 ## Architecture
 
-The application consists of three main Svelte components:
+### Components
 
-### Main Page (`src/routes/+page.svelte`)
+#### Main Page (`src/routes/+page.svelte`)
 
-- Handles file upload and parsing
-- Manages application state and filtering
-- Groups data by validation_id, model_name, and embedding_provider
-- Provides reactive filtering based on user selections
+- File upload and parsing
+- State management and filtering
+- Data grouping and organization
+- Export/import functionality
 
-### Results Table (`src/lib/components/ResultsTable.svelte`)
+#### Dashboard (`src/lib/components/Dashboard.svelte`)
 
-- Renders the main data table structure
-- Handles responsive table layout
-- Shows "no results" state when filtered data is empty
+- Performance analytics and metrics
+- Category analysis and visualization
+- Text length statistics
+- Top performers identification
 
-### Result Row (`src/lib/components/ResultRow.svelte`)
+#### Results Table (`src/lib/components/ResultsTable.svelte`)
 
-- Displays individual result rows
-- Handles image display with lazy loading
-- Formats processing times and truncates long responses
-- Shows error states with appropriate styling
-- Provides visual indicators for context vs. no-context responses
+- Main data table with sorting
+- Infinite scroll implementation
+- Responsive table layout
+- Evaluation controls
+
+#### Result Row (`src/lib/components/ResultRow.svelte`)
+
+- Individual result display
+- Image handling with lazy loading
+- Scoring buttons and indicators
+- Similarity and conciseness visualization
+
+#### Image Modal (`src/lib/components/ImageModal.svelte`)
+
+- Full-screen image viewing
+- Navigation between images
+- Responsive modal design
 
 ## Technology Stack
 
@@ -140,19 +223,20 @@ The application consists of three main Svelte components:
 - **Styling**: CSS (component-scoped)
 - **Build Tool**: Vite
 - **Package Manager**: npm
+- **Icons**: Unicode emojis for cross-platform compatibility
 
-## Browser Support
+## Performance Features
 
-The application supports all modern browsers with ES2020+ support. Images are loaded with lazy loading for optimal performance.
+- **Lazy Loading**: Images load only when needed
+- **Infinite Scroll**: Efficient handling of large datasets
+- **Reactive Updates**: Real-time filtering and sorting
+- **Memory Management**: Optimized data structures
+- **Caching**: Evaluation progress persistence
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## License
-
-This project is open source and available under the MIT License.
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request

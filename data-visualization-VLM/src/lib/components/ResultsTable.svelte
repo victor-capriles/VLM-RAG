@@ -119,7 +119,33 @@
     return sortDirection === "asc" ? "⬆️" : "⬇️";
   }
 
-  // Calculate correctness score for a result
+  // Calculate conciseness penalty for a response
+  function getConcisenessPenalty(response: string): number {
+    if (!response) return 0;
+
+    const wordCount = response.trim().split(/\s+/).length;
+
+    // Ideal range: 10-50 words (no penalty)
+    if (wordCount >= 10 && wordCount <= 50) {
+      return 0; // No penalty
+    }
+
+    // Short responses (less than 10 words) - small penalty
+    if (wordCount < 10) {
+      return 0.1; // Small penalty for being too brief
+    }
+
+    // Long responses - increasing penalty
+    if (wordCount <= 100) {
+      return 0.2; // Moderate penalty for moderate verbosity
+    } else if (wordCount <= 150) {
+      return 0.4; // Higher penalty for high verbosity
+    } else {
+      return 0.6; // Maximum penalty for excessive verbosity
+    }
+  }
+
+  // Calculate correctness score including conciseness for a result
   function getCorrectnessScore(result: GroupedResult): number {
     try {
       const stored = sessionStorage.getItem("llm-evaluations");
@@ -153,13 +179,17 @@
       const withScore = getNumericScore(withEval);
       const withoutScore = getNumericScore(withoutEval);
 
-      // Return average score, with bonus for having evaluations
+      // Calculate base correctness score
       const totalScore = withScore + withoutScore;
       const evaluatedCount =
         (withScore >= 0 ? 1 : 0) + (withoutScore >= 0 ? 1 : 0);
 
       if (evaluatedCount === 0) return -1; // No evaluations
-      return totalScore / evaluatedCount;
+
+      const correctnessScore = totalScore / evaluatedCount;
+
+      // Return just the correctness score (3.0 scale)
+      return correctnessScore;
     } catch (e) {
       return 0;
     }
@@ -233,6 +263,7 @@
           class="sortable col-score"
           class:sorted={sortField === "correctness_score"}
           onclick={() => handleSort("correctness_score")}
+          title="Content accuracy score based on evaluation (3=Direct, 2=Inferable, 1=Missing, 0=Hallucination)"
         >
           Score
           {#if sortField === "correctness_score"}

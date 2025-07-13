@@ -145,7 +145,33 @@
     return current === type ? "active" : "";
   }
 
-  // Calculate correctness score for display
+  // Calculate conciseness score for a response
+  function getConcisenessPenalty(response: string): number {
+    if (!response) return 0;
+
+    const wordCount = response.trim().split(/\s+/).length;
+
+    // Ideal range: 10-50 words (no penalty)
+    if (wordCount >= 10 && wordCount <= 50) {
+      return 0; // No penalty
+    }
+
+    // Short responses (less than 10 words) - small penalty
+    if (wordCount < 10) {
+      return 0.1; // Small penalty for being too brief
+    }
+
+    // Long responses - increasing penalty
+    if (wordCount <= 100) {
+      return 0.2; // Moderate penalty for moderate verbosity
+    } else if (wordCount <= 150) {
+      return 0.4; // Higher penalty for high verbosity
+    } else {
+      return 0.6; // Maximum penalty for excessive verbosity
+    }
+  }
+
+  // Calculate correctness score (content accuracy only)
   function getCorrectnessScore(): number {
     const withEval = getEvaluation(true);
     const withoutEval = getEvaluation(false);
@@ -168,12 +194,17 @@
     const withScore = getNumericScore(withEval);
     const withoutScore = getNumericScore(withoutEval);
 
+    // Calculate base correctness score
     const totalScore = withScore + withoutScore;
     const evaluatedCount =
       (withScore >= 0 ? 1 : 0) + (withoutScore >= 0 ? 1 : 0);
 
     if (evaluatedCount === 0) return -1; // No evaluations
-    return totalScore / evaluatedCount;
+
+    const correctnessScore = totalScore / evaluatedCount;
+
+    // Return just the correctness score (3.0 scale)
+    return correctnessScore;
   }
 
   // Calculate context impact score
@@ -419,6 +450,70 @@
   // Format distance for display
   function formatDistance(distance: number): string {
     return distance.toFixed(3);
+  }
+
+  // Get conciseness info for display
+  function getConcisenessMeter(response: string): {
+    wordCount: number;
+    penalty: number;
+    level: string;
+    color: string;
+    description: string;
+  } {
+    if (!response) {
+      return {
+        wordCount: 0,
+        penalty: 0,
+        level: "N/A",
+        color: "#6c757d",
+        description: "No response",
+      };
+    }
+
+    const wordCount = response.trim().split(/\s+/).length;
+    const penalty = getConcisenessPenalty(response);
+
+    if (wordCount >= 10 && wordCount <= 50) {
+      return {
+        wordCount,
+        penalty,
+        level: "Ideal",
+        color: "#28a745",
+        description: "Perfect length",
+      };
+    } else if (wordCount < 10) {
+      return {
+        wordCount,
+        penalty,
+        level: "Brief",
+        color: "#ffc107",
+        description: "May lack detail",
+      };
+    } else if (wordCount <= 100) {
+      return {
+        wordCount,
+        penalty,
+        level: "Verbose",
+        color: "#fd7e14",
+        description: "Moderately long",
+      };
+    } else if (wordCount <= 150) {
+      return {
+        wordCount,
+        penalty,
+        level: "Long",
+        color: "#dc3545",
+        description: "Quite verbose",
+      };
+    } else {
+      return {
+        wordCount,
+        penalty,
+        level: "Excessive",
+        color: "#6f42c1",
+        description: "Too verbose",
+      };
+    }
   }
 
   // Extract meaningful keywords from text
@@ -759,6 +854,27 @@
             {/if}
           </span>
         </div>
+
+        <!-- Conciseness Indicator -->
+        {@const concisenessMeter = getConcisenessMeter(
+          result.with_context.llm_response
+        )}
+        <div class="conciseness-info">
+          <div class="conciseness-meter">
+            <span class="conciseness-label">Length:</span>
+            <span
+              class="conciseness-badge"
+              style="background-color: {concisenessMeter.color}; color: white;"
+              title="{concisenessMeter.description} ({concisenessMeter.wordCount} words, penalty: -{concisenessMeter.penalty.toFixed(
+                1
+              )})"
+            >
+              {concisenessMeter.level}
+            </span>
+            <span class="word-count">{concisenessMeter.wordCount} words</span>
+          </div>
+        </div>
+
         {#if result.with_context.error}
           <div class="response-error">
             <strong>Error:</strong>
@@ -876,6 +992,27 @@
             </div>
           </div>
         </div>
+
+        <!-- Conciseness Indicator -->
+        {@const concisenessMeter = getConcisenessMeter(
+          result.without_context.llm_response
+        )}
+        <div class="conciseness-info">
+          <div class="conciseness-meter">
+            <span class="conciseness-label">Length:</span>
+            <span
+              class="conciseness-badge"
+              style="background-color: {concisenessMeter.color}; color: white;"
+              title="{concisenessMeter.description} ({concisenessMeter.wordCount} words, penalty: -{concisenessMeter.penalty.toFixed(
+                1
+              )})"
+            >
+              {concisenessMeter.level}
+            </span>
+            <span class="word-count">{concisenessMeter.wordCount} words</span>
+          </div>
+        </div>
+
         {#if result.without_context.error}
           <div class="response-error">
             <strong>Error:</strong>
@@ -1591,6 +1728,45 @@
     background: #6c757d;
     color: white;
     font-weight: 600;
+  }
+
+  /* Conciseness indicator styles */
+  .conciseness-info {
+    background: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e9ecef;
+  }
+
+  .conciseness-meter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .conciseness-label {
+    font-size: 0.7rem;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .conciseness-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: help;
+  }
+
+  .word-count {
+    font-size: 0.7rem;
+    color: #666;
+    font-family: monospace;
   }
 
   .expand-text-btn {

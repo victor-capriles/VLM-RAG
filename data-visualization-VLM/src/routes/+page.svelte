@@ -152,25 +152,28 @@
           for (const result of parsedData.data) {
             const key = `${result.validation_id}-${result.model_name}-${result.embedding_provider}`;
 
-            // Extract with_context evaluation
-            if (result.evaluation_with_context !== undefined) {
-              const withKey = `${key}-with`;
-              const evaluation = numberToEvaluation(
-                result.evaluation_with_context
-              );
-              if (evaluation) {
-                evaluations[withKey] = evaluation;
+            // Extract evaluations based on the result's context type
+            if (result.with_context) {
+              // This is a with_context result
+              if (result.evaluation_with_context !== undefined) {
+                const withKey = `${key}-with`;
+                const evaluation = numberToEvaluation(
+                  result.evaluation_with_context
+                );
+                if (evaluation) {
+                  evaluations[withKey] = evaluation;
+                }
               }
-            }
-
-            // Extract without_context evaluation
-            if (result.evaluation_without_context !== undefined) {
-              const withoutKey = `${key}-without`;
-              const evaluation = numberToEvaluation(
-                result.evaluation_without_context
-              );
-              if (evaluation) {
-                evaluations[withoutKey] = evaluation;
+            } else {
+              // This is a without_context result
+              if (result.evaluation_without_context !== undefined) {
+                const withoutKey = `${key}-without`;
+                const evaluation = numberToEvaluation(
+                  result.evaluation_without_context
+                );
+                if (evaluation) {
+                  evaluations[withoutKey] = evaluation;
+                }
               }
             }
           }
@@ -250,6 +253,14 @@
         : null;
     const evaluations = evaluationsJson ? JSON.parse(evaluationsJson) : {};
 
+    // Helper function to count words in a string
+    function countWords(text: string): number {
+      return text
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length > 0).length;
+    }
+
     // Convert evaluation strings to numbers
     const evaluationToNumber = (evaluation: string | null): number | null => {
       switch (evaluation) {
@@ -266,6 +277,60 @@
       }
     };
 
+    // Convert evaluation strings to category index (0-3)
+    const evaluationToCategory = (evaluation: string | null): number | null => {
+      switch (evaluation) {
+        case "directly_answered":
+          return 0; // Direct (3pts)
+        case "inferable":
+          return 1; // Inferable (2pts)
+        case "missing_incorrect":
+          return 2; // Missing (1pt)
+        case "hallucination":
+          return 3; // Hallucination (0pts)
+        default:
+          return null;
+      }
+    };
+
+    // Calculate correctness score for a result
+    const calculateCorrectnessScore = (result: any): number | null => {
+      const key = `${result.validation_id}-${result.model_name}-${result.embedding_provider}`;
+      const withKey = `${key}-with`;
+      const withoutKey = `${key}-without`;
+
+      const withEval = evaluations[withKey];
+      const withoutEval = evaluations[withoutKey];
+
+      const withScore = evaluationToNumber(withEval);
+      const withoutScore = evaluationToNumber(withoutEval);
+
+      const totalScore = (withScore || 0) + (withoutScore || 0);
+      const evaluatedCount =
+        (withScore !== null ? 1 : 0) + (withoutScore !== null ? 1 : 0);
+
+      if (evaluatedCount === 0) return null;
+
+      return totalScore / evaluatedCount;
+    };
+
+    // Calculate context impact for a result
+    const calculateContextImpactForResult = (result: any): number | null => {
+      const key = `${result.validation_id}-${result.model_name}-${result.embedding_provider}`;
+      const withKey = `${key}-with`;
+      const withoutKey = `${key}-without`;
+
+      const withEval = evaluations[withKey];
+      const withoutEval = evaluations[withoutKey];
+
+      const withScore = evaluationToNumber(withEval);
+      const withoutScore = evaluationToNumber(withoutEval);
+
+      if (withScore === null || withoutScore === null) return null;
+
+      return withScore - withoutScore;
+    };
+
     // Add evaluations to each result
     const dataWithEvaluations = rawResults.map((result) => {
       const key = `${result.validation_id}-${result.model_name}-${result.embedding_provider}`;
@@ -280,7 +345,13 @@
         if (withEval) {
           resultWithEvaluations.evaluation_with_context =
             evaluationToNumber(withEval);
+          resultWithEvaluations.category_with_context =
+            evaluationToCategory(withEval);
         }
+        // Always add word count for with context responses
+        resultWithEvaluations.word_count_with_context = countWords(
+          result.llm_response
+        );
       }
 
       if (!result.with_context) {
@@ -288,16 +359,51 @@
         if (withoutEval) {
           resultWithEvaluations.evaluation_without_context =
             evaluationToNumber(withoutEval);
+          resultWithEvaluations.category_without_context =
+            evaluationToCategory(withoutEval);
         }
+        // Always add word count for without context responses
+        resultWithEvaluations.word_count_without_context = countWords(
+          result.llm_response
+        );
       }
+
+      // Add calculated scores
+      resultWithEvaluations.correctness_score =
+        calculateCorrectnessScore(result);
+      resultWithEvaluations.context_impact =
+        calculateContextImpactForResult(result);
 
       return resultWithEvaluations;
     });
 
     // Create export object
     const exportData = {
-      version: "1.1",
+      version: "1.2",
       exported_at: new Date().toISOString(),
+      legend: {
+        categories: {
+          0: "Direct (3pts)",
+          1: "Inferable (2pts)",
+          2: "Missing (1pt)",
+          3: "Hallucination (0pts)",
+        },
+        fields: {
+          evaluation_with_context:
+            "Numeric score for with context response (0-3)",
+          evaluation_without_context:
+            "Numeric score for without context response (0-3)",
+          category_with_context:
+            "Category index for with context response (0-3)",
+          category_without_context:
+            "Category index for without context response (0-3)",
+          word_count_with_context: "Word count for with context response",
+          word_count_without_context: "Word count for without context response",
+          correctness_score: "Average correctness score (0-3)",
+          context_impact:
+            "Context impact score (with_context - without_context)",
+        },
+      },
       data: dataWithEvaluations,
       summary: {
         total_results: rawResults.length,
