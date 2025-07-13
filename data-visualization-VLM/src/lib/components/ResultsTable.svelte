@@ -64,8 +64,8 @@
             b.without_context?.processing_time ?? Number.MAX_SAFE_INTEGER;
           break;
         case "validation_id":
-          aValue = a.validation_id;
-          bValue = b.validation_id;
+          aValue = parseInt(a.validation_id, 10);
+          bValue = parseInt(b.validation_id, 10);
           break;
         case "model_name":
           aValue = a.model_name;

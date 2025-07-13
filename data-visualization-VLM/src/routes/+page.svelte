@@ -46,6 +46,7 @@
   let isLoadingMore = $state(false);
   const ITEMS_PER_LOAD = 25; // Load 25 more items each time
   let scrollSentinel: HTMLElement | undefined; // Element to observe for intersection
+  let showAllItems = $state(false); // Toggle to show all items at once
 
   // Force reactivity when evaluations change
   let evaluationUpdateTrigger = $state(0);
@@ -523,6 +524,9 @@
   // Get visible data for table (with infinite scroll limit)
   function visibleData() {
     const allFiltered = filteredData();
+    if (showAllItems) {
+      return allFiltered; // Show all items when toggle is enabled
+    }
     return allFiltered.slice(0, visibleItemsLimit);
   }
 
@@ -556,7 +560,13 @@
     evaluationUpdateTrigger;
 
     const allData = groupedData();
-    const totalPossibleEvaluations = allData.length * 2; // 2 evaluations per result (with/without context)
+
+    // Count actual possible evaluations based on available data
+    let totalPossibleEvaluations = 0;
+    for (const result of allData) {
+      if (result.with_context) totalPossibleEvaluations++;
+      if (result.without_context) totalPossibleEvaluations++;
+    }
 
     try {
       if (typeof sessionStorage === "undefined") {
@@ -714,6 +724,29 @@
 
       <div class="stats">
         <p>Showing {visibleData().length} of {filteredData().length} results</p>
+        <div class="display-options">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              bind:checked={showAllItems}
+              onchange={() => {
+                if (showAllItems) {
+                  // When enabling show all, disconnect the observer
+                  if (observer && scrollSentinel) {
+                    observer.unobserve(scrollSentinel);
+                  }
+                } else {
+                  // When disabling show all, reset to initial limit and reconnect observer
+                  visibleItemsLimit = 50;
+                  if (observer && scrollSentinel) {
+                    observer.observe(scrollSentinel);
+                  }
+                }
+              }}
+            />
+            Show all items at once (disable infinite scroll)
+          </label>
+        </div>
       </div>
     {/if}
   </section>
@@ -724,22 +757,24 @@
       <section class="results">
         <ResultsTable data={visibleData()} />
 
-        <!-- Infinite Scroll Elements -->
-        {#if visibleItemsLimit < filteredData().length}
-          <!-- Loading indicator -->
-          {#if isLoadingMore}
-            <div class="loading-indicator">
-              <div class="loading-spinner"></div>
-              <span>Loading more results...</span>
+        <!-- Infinite Scroll Elements (only show when not showing all items) -->
+        {#if !showAllItems}
+          {#if visibleItemsLimit < filteredData().length}
+            <!-- Loading indicator -->
+            {#if isLoadingMore}
+              <div class="loading-indicator">
+                <div class="loading-spinner"></div>
+                <span>Loading more results...</span>
+              </div>
+            {/if}
+
+            <!-- Sentinel element for intersection observer -->
+            <div bind:this={scrollSentinel} class="scroll-sentinel"></div>
+          {:else if filteredData().length > 0}
+            <div class="end-indicator">
+              <span>All {filteredData().length} results loaded</span>
             </div>
           {/if}
-
-          <!-- Sentinel element for intersection observer -->
-          <div bind:this={scrollSentinel} class="scroll-sentinel"></div>
-        {:else if filteredData().length > 0}
-          <div class="end-indicator">
-            <span>All {filteredData().length} results loaded</span>
-          </div>
         {/if}
       </section>
     {:else}
@@ -954,6 +989,35 @@
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid #e9ecef;
+  }
+
+  .display-options {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+    user-select: none;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #007bff;
+  }
+
+  .checkbox-label:hover {
+    color: #007bff;
   }
 
   .results {

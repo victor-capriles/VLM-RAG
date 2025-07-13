@@ -389,18 +389,18 @@
     let color: string;
     let label: string;
 
-    if (distance <= 0.5) {
+    if (distance <= 0.2) {
       color = "#28a745"; // Green - very similar
       label = "Very Similar";
-    } else if (distance <= 1.0) {
-      color = "#17a2b8"; // Blue - similar
+    } else if (distance <= 0.5) {
+      color = "#007bff"; // Blue - similar
       label = "Similar";
-    } else if (distance <= 1.5) {
-      color = "#ffc107"; // Yellow - moderate
-      label = "Moderate";
+    } else if (distance <= 1.0) {
+      color = "#fd7e14"; // Orange - moderate similarity
+      label = "Moderate Similarity";
     } else {
-      color = "#dc3545"; // Red - poor
-      label = "Poor";
+      color = "#dc3545"; // Red - poor similarity
+      label = "Poor Similarity";
     }
 
     return {
