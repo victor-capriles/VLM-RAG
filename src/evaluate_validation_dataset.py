@@ -19,16 +19,16 @@ SYSTEM_PROMPT: str = _prompts["be_my_ai_prompt"]
 
 # Evaluation Configuration
 EVALUATION_CONFIG = {
-    "embedding_provider": "openclip",  # Choose 'cohere' or 'openclip'
+    "embedding_provider": "cohere",  # Choose 'cohere' or 'openclip'
     "with_context": True,
     "without_context": True,
     "top_k_similar": 4,
-    "max_validation_samples": 1000,
+    "max_validation_samples": 100,
 }
 
 # Model Configurations
 MODEL_CONFIGS: List[Dict[str, str]] = [
-    {"name": "gemini-2.5-flash", "provider": "gemini", "model": "gemini-2.5-flash"},
+    {"name": "gemini-2.5-pro", "provider": "gemini", "model": "gemini-2.5-pro"},
 ]
 
 class ValidationEvaluator:
