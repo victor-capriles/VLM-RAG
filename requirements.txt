@@ -15,6 +15,7 @@ google-genai
 pandas
 numpy
 tqdm
+matplotlib
 
 # Notebook
 jupyter
