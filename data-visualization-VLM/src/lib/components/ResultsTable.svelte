@@ -29,7 +29,27 @@
   }
 
   // Props
-  let { data = [] }: { data: GroupedResult[] } = $props();
+  let { 
+    data = [],
+    columnVisibility = {
+      id: true,
+      contextImages: true,
+      withContext: true,
+      withoutContext: true,
+      score: true,
+      contextImpact: true
+    }
+  }: { 
+    data: GroupedResult[];
+    columnVisibility?: {
+      id: boolean;
+      contextImages: boolean;
+      withContext: boolean;
+      withoutContext: boolean;
+      score: boolean;
+      contextImpact: boolean;
+    };
+  } = $props();
 
   // Sorting state
   type SortField =
@@ -244,49 +264,60 @@
   <table class="results-table">
     <thead>
       <tr>
-        <th
-          class="sortable col-id"
-          class:sorted={sortField === "validation_id"}
-          onclick={() => handleSort("validation_id")}
-        >
-          ID
-          {#if sortField === "validation_id"}
-            <span class="sort-arrow">{sortDirection === "asc" ? "↑" : "↓"}</span
-            >
-          {/if}
-        </th>
-        <th class="col-details">Details</th>
-        <th class="col-context-images">Context Images</th>
-        <th class="col-with-context">With Context</th>
-        <th class="col-without-context">Without Context</th>
-        <th
-          class="sortable col-score"
-          class:sorted={sortField === "correctness_score"}
-          onclick={() => handleSort("correctness_score")}
-          title="Content accuracy score based on evaluation (3=Direct, 2=Inferable, 1=Missing, 0=Hallucination)"
-        >
-          Score
-          {#if sortField === "correctness_score"}
-            <span class="sort-arrow">{sortDirection === "asc" ? "↑" : "↓"}</span
-            >
-          {/if}
-        </th>
-        <th
-          class="sortable col-context-impact"
-          class:sorted={sortField === "context_impact"}
-          onclick={() => handleSort("context_impact")}
-        >
-          Context Impact
-          {#if sortField === "context_impact"}
-            <span class="sort-arrow">{sortDirection === "asc" ? "↑" : "↓"}</span
-            >
-          {/if}
-        </th>
+        {#if columnVisibility.id}
+          <th
+            class="sortable col-id"
+            class:sorted={sortField === "validation_id"}
+            onclick={() => handleSort("validation_id")}
+          >
+            Query Entry Details
+            {#if sortField === "validation_id"}
+              <span class="sort-arrow">{sortDirection === "asc" ? "↑" : "↓"}</span
+              >
+            {/if}
+          </th>
+        {/if}
+        {#if columnVisibility.contextImages}
+          <th class="col-context-images">Retrieved Visually Similar Images</th>
+        {/if}
+        {#if columnVisibility.withContext}
+          <th class="col-with-context">With Context</th>
+        {/if}
+        {#if columnVisibility.withoutContext}
+          <th class="col-without-context">Without Context</th>
+        {/if}
+        {#if columnVisibility.score}
+          <th
+            class="sortable col-score"
+            class:sorted={sortField === "correctness_score"}
+            onclick={() => handleSort("correctness_score")}
+            title="Content accuracy score based on evaluation (3=Direct, 2=Inferable, 1=Missing, 0=Hallucination)"
+          >
+            Score
+            {#if sortField === "correctness_score"}
+              <span class="sort-arrow">{sortDirection === "asc" ? "↑" : "↓"}</span
+              >
+            {/if}
+          </th>
+        {/if}
+        {#if columnVisibility.contextImpact}
+          <th
+            class="sortable col-context-impact"
+            class:sorted={sortField === "context_impact"}
+            onclick={() => handleSort("context_impact")}
+          >
+            Context Impact
+            {#if sortField === "context_impact"}
+              <span class="sort-arrow">{sortDirection === "asc" ? "↑" : "↓"}</span
+              >
+            {/if}
+          </th>
+        {/if}
       </tr>
     </thead>
     <tbody>
-      {#each sortedData as result (result.id)}
-        <ResultRow {result} allResults={data} />
+      {#each sortedData as result, index (result.id)}
+        <ResultRow {result} allResults={data} {columnVisibility} rowNumber={index + 1} />
       {/each}
     </tbody>
   </table>
@@ -393,32 +424,32 @@
 
   /* Flexible column widths - percentages instead of fixed pixels */
   .col-id {
-    width: 8%;
-    min-width: 60px;
+    width: 10%; /* Increased from 8% to accommodate details content */
+    min-width: 120px; /* Increased from 60px */
     box-sizing: border-box;
   }
 
   .col-details {
-    width: 20%;
-    min-width: 200px;
+    width: 15%;
+    min-width: 180px;
     box-sizing: border-box;
   }
 
   .col-context-images {
-    width: 24%;
-    min-width: 250px;
+    width: 20%; /* Reduced from 23% */
+    min-width: 220px; /* Reduced from 240px */
     box-sizing: border-box;
   }
 
   .col-with-context {
-    width: 24%;
-    min-width: 250px;
+    width: 22%; /* Reduced from 25% */
+    min-width: 230px; /* Reduced from 250px */
     box-sizing: border-box;
   }
 
   .col-without-context {
-    width: 24%;
-    min-width: 250px;
+    width: 22%; /* Reduced from 25% */
+    min-width: 230px; /* Reduced from 250px */
     box-sizing: border-box;
   }
 
@@ -492,10 +523,14 @@
       font-size: 0.85rem;
     }
     
+    .col-id {
+      min-width: 200px;
+    }
+    
     .col-context-images,
     .col-with-context,
     .col-without-context {
-      min-width: 220px;
+      min-width: 200px;
     }
   }
 
@@ -504,14 +539,18 @@
       font-size: 0.8rem;
     }
 
-    .col-details {
+    .col-id {
       min-width: 180px;
+    }
+
+    .col-details {
+      min-width: 160px;
     }
     
     .col-context-images,
     .col-with-context,
     .col-without-context {
-      min-width: 200px;
+      min-width: 180px;
     }
   }
 
@@ -530,17 +569,17 @@
     }
 
     .col-id {
-      min-width: 50px;
+      min-width: 160px; /* Increased to accommodate combined content */
     }
 
     .col-details {
-      min-width: 150px;
+      min-width: 140px;
     }
 
     .col-context-images,
     .col-with-context,
     .col-without-context {
-      min-width: 180px;
+      min-width: 160px;
     }
 
     .col-score {

@@ -21,6 +21,17 @@
   let selectedContext: ContextFilter = $state("all");
   let selectedEmbedding: EmbeddingFilter = $state("all");
   let selectedContextImpact: ContextImpactFilter = $state("all");
+  
+  // Column visibility state
+  let columnVisibility = $state({
+    id: true,
+    contextImages: true,
+    withContext: true,
+    withoutContext: true,
+    score: true,
+    contextImpact: true
+  });
+  
   // UI state
   let showFilters = $state(false);
   let activeTab: TabType = $state("results");
@@ -768,6 +779,50 @@
     width: 100%;
     padding: 20px;
   }
+
+  /* Column Visibility Controls */
+  .column-toggles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .column-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+  }
+
+  .column-toggle:hover {
+    background-color: #f1f3f4;
+  }
+
+  .column-toggle input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .column-toggle span {
+    color: #555;
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .column-toggles {
+      gap: 0.375rem;
+    }
+
+    .column-toggle {
+      font-size: 0.85rem;
+      padding: 0.2rem;
+    }
+  }
 </style>
 
 <div class="app-layout">
@@ -814,6 +869,37 @@
           <option value="no_change">No Change</option>
           <option value="evaluated">Has Evaluations</option>
         </select>
+      </div>
+
+      <!-- Column Visibility Controls -->
+      <div class="filter-group">
+        <label>Column Visibility:</label>
+        <div class="column-toggles">
+          <label class="column-toggle">
+            <input type="checkbox" bind:checked={columnVisibility.id} />
+            <span>ID & Details</span>
+          </label>
+          <label class="column-toggle">
+            <input type="checkbox" bind:checked={columnVisibility.contextImages} />
+            <span>Retrieved Visually Similar Images</span>
+          </label>
+          <label class="column-toggle">
+            <input type="checkbox" bind:checked={columnVisibility.withContext} />
+            <span>With Context</span>
+          </label>
+          <label class="column-toggle">
+            <input type="checkbox" bind:checked={columnVisibility.withoutContext} />
+            <span>Without Context</span>
+          </label>
+          <label class="column-toggle">
+            <input type="checkbox" bind:checked={columnVisibility.score} />
+            <span>Score</span>
+          </label>
+          <label class="column-toggle">
+            <input type="checkbox" bind:checked={columnVisibility.contextImpact} />
+            <span>Context Impact</span>
+          </label>
+        </div>
       </div>
     {:else}
       <p style="color: #666; font-size: 0.9rem;">Upload data to see filters</p>
@@ -936,7 +1022,7 @@
       {#if activeTab === "results"}
         {#if rawResults.length > 0}
           <section class="results">
-            <ResultsTable data={visibleData()} />
+            <ResultsTable data={visibleData()} {columnVisibility} />
 
             <!-- Infinite Scroll Elements (only show when not showing all items) -->
             {#if !showAllItems}

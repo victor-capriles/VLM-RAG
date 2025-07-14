@@ -38,7 +38,28 @@
   let {
     result,
     allResults,
-  }: { result: GroupedResult; allResults: GroupedResult[] } = $props();
+    columnVisibility = {
+      id: true,
+      contextImages: true,
+      withContext: true,
+      withoutContext: true,
+      score: true,
+      contextImpact: true
+    },
+    rowNumber
+  }: { 
+    result: GroupedResult; 
+    allResults: GroupedResult[];
+    columnVisibility?: {
+      id: boolean;
+      contextImages: boolean;
+      withContext: boolean;
+      withoutContext: boolean;
+      score: boolean;
+      contextImpact: boolean;
+    };
+    rowNumber: number;
+  } = $props();
 
   // Modal state
   let isModalOpen = $state(false);
@@ -452,43 +473,56 @@
     return distance.toFixed(3);
   }
 
-  // Calculate length statistics for thermometer
+  // Calculate global min/max from both context types and context-specific average
   function getLengthStats(withContext: boolean): {
     min: number;
     max: number;
     average: number;
     quartiles: number[];
   } {
-    const lengths: number[] = [];
+    const contextSpecificLengths: number[] = [];
+    const allLengths: number[] = [];
     
-    // Collect word counts for the specified context type
+    // Collect word counts for both context types to get global min/max
     allResults.forEach((res) => {
-      const response = withContext ? res.with_context?.llm_response : res.without_context?.llm_response;
-      if (response) {
-        const wordCount = response.trim().split(/\s+/).length;
-        lengths.push(wordCount);
+      // Collect from the specified context type for average calculation
+      const contextResponse = withContext ? res.with_context?.llm_response : res.without_context?.llm_response;
+      if (contextResponse) {
+        const wordCount = contextResponse.trim().split(/\s+/).length;
+        contextSpecificLengths.push(wordCount);
+        allLengths.push(wordCount);
+      }
+      
+      // Also collect from the other context type for global min/max
+      const otherContextResponse = withContext ? res.without_context?.llm_response : res.with_context?.llm_response;
+      if (otherContextResponse) {
+        const wordCount = otherContextResponse.trim().split(/\s+/).length;
+        allLengths.push(wordCount);
       }
     });
     
-    if (lengths.length === 0) return { min: 0, max: 100, average: 50, quartiles: [0, 25, 50, 75, 100] };
+    if (allLengths.length === 0) return { min: 0, max: 100, average: 50, quartiles: [0, 25, 50, 75, 100] };
     
-    // Sort lengths for quartile calculation
-    const sortedLengths = [...lengths].sort((a, b) => a - b);
-    const min = Math.min(...lengths);
-    const max = Math.max(...lengths);
-    const average = lengths.reduce((sum, len) => sum + len, 0) / lengths.length;
+    // Use global min/max from both context types
+    const globalMin = Math.min(...allLengths);
+    const globalMax = Math.max(...allLengths);
     
-    // Calculate quartiles based on actual min-max range
-    const range = max - min;
+    // Use context-specific average
+    const contextAverage = contextSpecificLengths.length > 0 
+      ? contextSpecificLengths.reduce((sum, len) => sum + len, 0) / contextSpecificLengths.length
+      : (globalMin + globalMax) / 2;
+    
+    // Calculate quartiles based on global min-max range
+    const range = globalMax - globalMin;
     const quartiles = [
-      min,                                        // 0% (min)
-      min + range * 0.25,                        // 25%
-      min + range * 0.5,                         // 50%
-      min + range * 0.75,                        // 75%
-      max                                        // 100% (max)
+      globalMin,                                  // 0% (global min)
+      globalMin + range * 0.25,                  // 25%
+      globalMin + range * 0.5,                   // 50%
+      globalMin + range * 0.75,                  // 75%
+      globalMax                                  // 100% (global max)
     ];
     
-    return { min, max, average, quartiles };
+    return { min: globalMin, max: globalMax, average: contextAverage, quartiles };
   }
 
   // Create thermometer data for display
@@ -683,6 +717,25 @@
     return extractKeywords(result.crowd_majority);
   }
 
+  // Calculate precise marker positioning based on thermometer data
+  function getMarkerPositioning(stats: { min: number; max: number; average: number }) {
+    const range = stats.max - stats.min;
+    
+    // Calculate average percentage position within the range
+    const avgPercentage = range > 0 ? ((stats.average - stats.min) / range) * 100 : 50;
+    
+    return {
+      // Min marker: position at left border of thermometer container
+      minStyle: `left: 0%; transform: translateX(0%);`,
+      
+      // Max marker: position at right border of thermometer container
+      maxStyle: `left: 100%; transform: translateX(-100%);`,
+      
+      // Average marker: center on calculated average position
+      avgStyle: `left: ${Math.min(100, Math.max(0, avgPercentage))}%; transform: translateX(-50%);`
+    };
+  }
+
   // Highlight keywords in text
   function highlightKeywords(text: string): string {
     if (!text) return "";
@@ -705,70 +758,75 @@
 </script>
 
 <tr class="result-row">
-  <!-- ID with Query Image -->
-  <td class="col-id">
-    <div class="id-content">
-      <span class="validation-id">#{result.validation_id}</span>
-
-      <!-- Query Image -->
-      <div class="image-container">
-        <button
-          class="image-button"
-          onclick={openQueryImageModal}
-          aria-label="View query image in full size"
-        >
-          <img
-            src={result.image_url}
-            alt="Validation {result.validation_id}"
-            class="query-image clickable-image"
-            loading="lazy"
-          />
-          <div class="image-overlay">
-            <svg
-              class="expand-icon"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M15 3H21M21 3V9M21 3L15 9M9 21H3M3 21V15M3 21L9 15"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+    <!-- ID with Query Image and Details -->
+  {#if columnVisibility.id}
+    <td class="col-id">
+      <div class="id-content">
+        <div class="id-header">
+          <span class="validation-id">ID #{result.validation_id}</span>
+          <span class="validation-id">Row {rowNumber}</span>
+          <!-- Query Image -->
+          
+        </div>
+        <div class="image-container">
+          <button
+            class="image-button"
+            onclick={openQueryImageModal}
+            aria-label="View query image in full size"
+          >
+            <img
+              src={result.image_url}
+              alt="Validation {result.validation_id}"
+              class="query-image clickable-image"
+              loading="lazy"
+            />
+            <div class="image-overlay">
+              <svg
+                class="expand-icon"
+                width="40"
+                height="80"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M15 3H21M21 3V9M21 3L15 9M9 21H3M3 21V15M3 21L9 15"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+          </button>
+        </div>
+        <!-- Details content moved from details column -->
+        <div class="details-content">
+          <div class="detail-item">
+            <strong>Model:</strong>
+            <div class="model-info">
+              <div class="model-name">{result.model_name}</div>
+              <div class="embedding-provider">{result.embedding_provider}</div>
+            </div>
           </div>
-        </button>
-      </div>
-    </div>
-  </td>
-
-  <!-- Details (including model info) -->
-  <td class="col-details">
-    <div class="details-content">
-      <div class="detail-item">
-        <strong>Model:</strong>
-        <div class="model-info">
-          <div class="model-name">{result.model_name}</div>
-          <div class="embedding-provider">{result.embedding_provider}</div>
+          <div class="detail-item">
+            <strong>Question:</strong>
+            <p class="question-text">{result.real_question}</p>
+          </div>
+          <div class="detail-item">
+            <strong>Expected Answer:</strong>
+            <p class="answer-text">{result.crowd_majority}</p>
+          </div>
         </div>
       </div>
-      <div class="detail-item">
-        <strong>Question:</strong>
-        <p class="question-text">{result.real_question}</p>
-      </div>
-      <div class="detail-item">
-        <strong>Expected Answer:</strong>
-        <p class="answer-text">{result.crowd_majority}</p>
-      </div>
-    </div>
-  </td>
+    </td>
+  {/if}
+
+
 
   <!-- Context Images -->
-  <td class="col-context-images">
+  {#if columnVisibility.contextImages}
+    <td class="col-context-images">
     <div class="context-images">
       {#if result.with_context && result.with_context.similar_images && result.with_context.similar_images.length > 0}
         <div class="similar-images-list">
@@ -856,9 +914,11 @@
       {/if}
     </div>
   </td>
+  {/if}
 
   <!-- Response (With Context) -->
-  <td class="col-with-context">
+  {#if columnVisibility.withContext}
+    <td class="col-with-context">
     <div class="response-content">
       {#if result.with_context}
         <div class="response-header">
@@ -932,15 +992,24 @@
         )}
         {@const range = thermometerData.stats.max - thermometerData.stats.min}
         {@const avgPercentage = range > 0 ? Math.min(100, ((thermometerData.stats.average - thermometerData.stats.min) / range) * 100) : 50}
+        {@const markerPositioning = getMarkerPositioning(thermometerData.stats)}
         <div class="conciseness-info">
           <div class="thermometer-section">
-            <span class="conciseness-label">Length:</span>
+            <div class="conciseness-label">
+              <span class="word-count">{concisenessMeter.wordCount} words</span>
+            </div>
             <div class="length-thermometer">
-              <div class="thermometer-bar">
+              <div class="thermometer-bar thermometer-tooltip-trigger">
                 <div 
                   class="thermometer-fill"
                   style="width: {thermometerData.percentage}%; background-color: {thermometerData.color}"
                 ></div>
+                
+                <!-- Custom tooltip -->
+                <div class="thermometer-tooltip">
+                  <div class="tooltip-line"><strong>Length:</strong> {concisenessMeter.wordCount} words</div>
+                  <div class="tooltip-line"><strong>Position:</strong> {Math.round(thermometerData.percentage)}%</div>
+                </div>
                 
                 <!-- Quartile markings -->
                 <div class="thermometer-markings">
@@ -965,14 +1034,23 @@
                   title="Current: {concisenessMeter.wordCount} words"
                 ></div>
               </div>
-            </div>
-            <div class="thermometer-info">
-              <span class="word-count">{concisenessMeter.wordCount} words</span>
-              <!-- Min/Max/Average display -->
-              <div class="thermometer-stats">
-                <span class="stat-item">Min: {thermometerData.stats.min}</span>
-                <span class="stat-item">Avg: {Math.round(thermometerData.stats.average)}</span>
-                <span class="stat-item">Max: {thermometerData.stats.max}</span>
+              
+              <!-- Thermometer Labels -->
+              <div class="thermometer-labels">
+                <div class="label-container">
+                  <div class="label min-label" style="left: 0%">
+                    <span class="label-value">{Math.round(thermometerData.stats.min)}</span>
+                    <span class="label-text">min</span>
+                  </div>
+                  <div class="label avg-label" style="left: {avgPercentage}%">
+                    <span class="label-value">{Math.round(thermometerData.stats.average)}</span>
+                    <span class="label-text">avg</span>
+                  </div>
+                  <div class="label max-label" style="left: 100%">
+                    <span class="label-value">{Math.round(thermometerData.stats.max)}</span>
+                    <span class="label-text">max</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1028,9 +1106,11 @@
       {/if}
     </div>
   </td>
+  {/if}
 
   <!-- Response (Without Context) -->
-  <td class="col-without-context">
+  {#if columnVisibility.withoutContext}
+    <td class="col-without-context">
     <div class="response-content">
       {#if result.without_context}
         <div class="response-header">
@@ -1105,15 +1185,27 @@
         )}
         {@const range = thermometerData.stats.max - thermometerData.stats.min}
         {@const avgPercentage = range > 0 ? Math.min(100, ((thermometerData.stats.average - thermometerData.stats.min) / range) * 100) : 50}
+        {@const markerPositioning = getMarkerPositioning(thermometerData.stats)}
         <div class="conciseness-info">
           <div class="thermometer-section">
-            <span class="conciseness-label">Length:</span>
+           
+              <div class="conciseness-label">
+                <span class="word-count">{concisenessMeter.wordCount} words</span>
+              </div>
+       
+            
             <div class="length-thermometer">
-              <div class="thermometer-bar">
+              <div class="thermometer-bar thermometer-tooltip-trigger">
                 <div 
                   class="thermometer-fill"
                   style="width: {thermometerData.percentage}%; background-color: {thermometerData.color}"
                 ></div>
+                
+                <!-- Custom tooltip -->
+                <div class="thermometer-tooltip">
+                  <div class="tooltip-line"><strong>Length:</strong> {concisenessMeter.wordCount} words</div>
+                  <div class="tooltip-line"><strong>Position:</strong> {Math.round(thermometerData.percentage)}%</div>
+                </div>
                 
                 <!-- Quartile markings -->
                 <div class="thermometer-markings">
@@ -1131,23 +1223,28 @@
                   title="Average: {Math.round(thermometerData.stats.average)} words"
                 ></div>
                 
-                <!-- Current value indicator -->
-                <div 
-                  class="current-value-indicator" 
-                  style="left: {thermometerData.percentage}%"
-                  title="Current: {concisenessMeter.wordCount} words"
-                ></div>
+                
+              </div>
+              
+              <!-- Thermometer Labels -->
+              <div class="thermometer-labels">
+                <div class="label-container">
+                  <div class="label min-label" style="left: 0%">
+                    <span class="label-value">{Math.round(thermometerData.stats.min)}</span>
+                    <span class="label-text">min</span>
+                  </div>
+                  <div class="label avg-label" style="left: {avgPercentage}%">
+                    <span class="label-value">{Math.round(thermometerData.stats.average)}</span>
+                    <span class="label-text">avg</span>
+                  </div>
+                  <div class="label max-label" style="left: 100%">
+                    <span class="label-value">{Math.round(thermometerData.stats.max)}</span>
+                    <span class="label-text">max</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="thermometer-info">
-              <span class="word-count">{concisenessMeter.wordCount} words</span>
-              <!-- Min/Max/Average display -->
-              <div class="thermometer-stats">
-                <span class="stat-item">Min: {thermometerData.stats.min}</span>
-                <span class="stat-item">Avg: {Math.round(thermometerData.stats.average)}</span>
-                <span class="stat-item">Max: {thermometerData.stats.max}</span>
-              </div>
-            </div>
+            
           </div>
         </div>
 
@@ -1201,44 +1298,49 @@
       {/if}
     </div>
   </td>
+  {/if}
 
   <!-- Correctness Score -->
-  <td class="col-score">
-    <div class="score-display">
-      <div
-        class="score-value"
-        style="color: {getScoreColor(getCorrectnessScore())}"
-      >
-        {formatScore(getCorrectnessScore())}
+  {#if columnVisibility.score}
+    <td class="col-score">
+      <div class="score-display">
+        <div
+          class="score-value"
+          style="color: {getScoreColor(getCorrectnessScore())}"
+        >
+          {formatScore(getCorrectnessScore())}
+        </div>
+        <div class="score-label">
+          {#if getCorrectnessScore() >= 0}
+            /3.0
+          {:else}
+            Not rated
+          {/if}
+        </div>
       </div>
-      <div class="score-label">
-        {#if getCorrectnessScore() >= 0}
-          /3.0
-        {:else}
-          Not rated
-        {/if}
-      </div>
-    </div>
-  </td>
+    </td>
+  {/if}
 
   <!-- Context Impact -->
-  <td class="col-context-impact">
-    <div class="impact-display">
-      <div
-        class="impact-score"
-        style="color: {getContextImpactColor(contextImpactScore)}"
-      >
-        {#if contextImpactScore !== null}
-          {contextImpactScore > 0 ? "+" : ""}{contextImpactScore}
-        {:else}
-          -
-        {/if}
+  {#if columnVisibility.contextImpact}
+    <td class="col-context-impact">
+      <div class="impact-display">
+        <div
+          class="impact-score"
+          style="color: {getContextImpactColor(contextImpactScore)}"
+        >
+          {#if contextImpactScore !== null}
+            {contextImpactScore > 0 ? "+" : ""}{contextImpactScore}
+          {:else}
+            -
+          {/if}
+        </div>
+        <div class="impact-label">
+          {getContextImpactDescription(contextImpactScore)}
+        </div>
       </div>
-      <div class="impact-label">
-        {getContextImpactDescription(contextImpactScore)}
-      </div>
-    </div>
-  </td>
+    </td>
+  {/if}
 </tr>
 
 <!-- Image Modal -->
@@ -1269,32 +1371,32 @@
 
   /* Column widths - Fixed layout */
   .col-id {
-    width: 8%;
-    min-width: 60px;
+    width: 10%; /* Increased from 8% to accommodate details content */
+    min-width: 120px; /* Increased from 60px */
     box-sizing: border-box;
   }
 
   .col-details {
-    width: 20%;
-    min-width: 200px;
+    width: 15%;
+    min-width: 180px;
     box-sizing: border-box;
   }
 
   .col-context-images {
-    width: 24%;
-    min-width: 250px;
+    width: 20%; /* Reduced from 23% */
+    min-width: 220px; /* Reduced from 240px */
     box-sizing: border-box;
   }
 
   .col-with-context {
-    width: 24%;
-    min-width: 250px;
+    width: 22%; /* Reduced from 25% */
+    min-width: 230px; /* Reduced from 250px */
     box-sizing: border-box;
   }
 
   .col-without-context {
-    width: 24%;
-    min-width: 250px;
+    width: 22%; /* Reduced from 25% */
+    min-width: 230px; /* Reduced from 250px */
     box-sizing: border-box;
   }
 
@@ -1342,11 +1444,19 @@
 
   /* ID Column */
   .id-content {
-    text-align: center;
+    text-align: left; /* Changed from center to left */
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    align-items: flex-start; /* Changed from center to flex-start */
+  }
+
+  /* ID Header with validation ID and image */
+  .id-header {
+    display: flex;
     align-items: center;
+    gap: 0.75rem;
+    width: 100%;
   }
 
   .validation-id {
@@ -1356,25 +1466,34 @@
     border-radius: 3px;
     font-size: 0.8rem;
     color: #495057;
+    flex-shrink: 0;
   }
 
   /* Image Container in ID Column */
-  .id-content .image-container {
+  .id-header .image-container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     margin: 0;
+    width: 100%;
+  }
+
+  /* Full width for image button in ID column */
+  .id-header .image-button {
+    width: 100%;
   }
 
   .id-content .query-image {
-    max-width: 80px;
-    max-height: 80px;
-    width: auto;
-    height: auto;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    object-fit: cover;
-    display: block;
+    width: 100%; /* Keep full width on mobile */
+    max-width: none; /* Remove max-width constraint */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 150px; /* Slightly smaller max height for mobile */
+  }
+
+  /* Details content in ID column */
+  .id-content .details-content {
+    width: 100%;
+    font-size: 0.85rem;
   }
 
   /* Details Column */
@@ -1694,15 +1813,15 @@
   .eval-btn {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
-    border-radius: 3px;
-    padding: 0.2rem;
+    border-radius: 4px;
+    padding: 0.4rem;
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     line-height: 1;
     transition: all 0.2s ease;
     opacity: 0.6;
-    min-width: 24px;
-    height: 24px;
+    min-width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1880,12 +1999,17 @@
     border-radius: 4px;
     margin-bottom: 0.5rem;
     border: 1px solid #e9ecef;
+    /* Ensure the thermometer container has sufficient space */
+    min-height: 60px;
+    overflow: visible;
   }
 
   .thermometer-section {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.5rem;
+    /* CSS custom property for thermometer margin - ensures consistency */
+    --thermometer-margin: 8px;
   }
 
   .thermometer-info {
@@ -1923,6 +2047,115 @@
   .length-thermometer {
     width: 100%;
     min-width: 120px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Responsive thermometer adjustments */
+  @media (max-width: 1200px) {
+    .thermometer-section {
+      --thermometer-margin: 6px; /* Reduce margin on smaller screens */
+    }
+    
+    .length-thermometer {
+      min-width: 100px;
+    }
+    
+    .marker-label {
+      font-size: 0.55rem;
+    }
+
+    .label-value {
+      font-size: 0.6rem;
+    }
+
+    .label-text {
+      font-size: 0.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .thermometer-section {
+      --thermometer-margin: 4px; /* Further reduce margin on mobile */
+    }
+    
+    .length-thermometer {
+      min-width: 80px;
+    }
+    
+    .thermometer-bar {
+      height: 10px; /* Slightly smaller on mobile */
+    }
+    
+    .marker-label {
+      font-size: 0.5rem;
+      line-height: 1.0;
+    }
+    
+    .thermometer-markers {
+      height: 28px; /* Reduced height for mobile */
+    }
+    
+    .marker-line {
+      height: 6px; /* Smaller marker lines on mobile */
+    }
+
+    .thermometer-labels {
+      height: 28px; /* Match thermometer-markers height */
+    }
+
+    .label-value {
+      font-size: 0.55rem;
+    }
+
+    .label-text {
+      font-size: 0.45rem;
+    }
+  }
+
+  /* Extra small screens - simplify thermometer */
+  @media (max-width: 480px) {
+    .thermometer-section {
+      --thermometer-margin: 2px; /* Minimal margin on very small screens */
+    }
+    
+    .length-thermometer {
+      min-width: 60px;
+    }
+    
+    .thermometer-bar {
+      height: 8px; /* Even smaller on very small screens */
+    }
+    
+    .marker-label {
+      font-size: 0.45rem;
+      line-height: 0.9;
+    }
+    
+    .thermometer-markers {
+      height: 24px; /* Reduced height for very small screens */
+    }
+    
+    .marker-line {
+      height: 4px; /* Minimal marker lines */
+    }
+
+    .thermometer-labels {
+      height: 24px; /* Match thermometer-markers height */
+    }
+
+    .label-value {
+      font-size: 0.5rem;
+    }
+
+    .label-text {
+      font-size: 0.4rem;
+    }
+    
+    /* Hide some markers on very small screens to prevent overcrowding */
+    .conciseness-info {
+      min-height: 50px;
+    }
   }
 
   .thermometer-bar {
@@ -1930,8 +2163,61 @@
     background: #e9ecef;
     border-radius: 6px;
     border: 1px solid #dee2e6;
-    overflow: hidden;
+    overflow: visible;
     position: relative;
+    cursor: help;
+    margin: 0 var(--thermometer-margin);
+    /* Ensure minimum viable width even with margins */
+    min-width: calc(60px - 2 * var(--thermometer-margin));
+  }
+
+  .thermometer-tooltip-trigger {
+    position: relative;
+  }
+
+  .thermometer-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.1s ease, visibility 0.1s ease;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .thermometer-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+  }
+
+  .thermometer-tooltip-trigger:hover .thermometer-tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .tooltip-line {
+    margin: 2px 0;
+    line-height: 1.3;
+  }
+
+  .tooltip-line strong {
+    color: #ffc107;
+    margin-right: 4px;
   }
 
   .thermometer-fill {
@@ -1984,19 +2270,139 @@
     z-index: 10;
   }
 
-  .thermometer-stats {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 4px;
-    font-size: 0.65rem;
-    color: #666;
-    font-family: monospace;
+  .thermometer-markers {
+    margin-top: 2px;
+    height: 32px; /* Space for markers and labels */
+    position: relative;
+    /* Match the thermometer bar margin to ensure consistent coordinate system */
+    margin-left: var(--thermometer-margin);
+    margin-right: var(--thermometer-margin);
   }
 
-  .stat-item {
-    flex: 1;
+  .marker-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .marker {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 5;
+  }
+
+  .marker-line {
+    width: 2px;
+    height: 8px;
+    background: #495057;
+    border-radius: 1px;
+  }
+
+  .marker-label {
+    font-size: 0.6rem;
+    color: #666;
+    font-family: monospace;
     text-align: center;
-    padding: 1px 2px;
+    line-height: 1.1;
+    margin-top: 2px;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  .min-marker .marker-line {
+    background: #6c757d;
+  }
+
+  .avg-marker .marker-line {
+    background: #007bff;
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.4);
+  }
+
+  .max-marker .marker-line {
+    background: #6c757d;
+  }
+
+  /* Robust positioning for markers - no manual overrides needed */
+  .min-marker {
+    /* Positioning handled programmatically via inline styles */
+  }
+
+  .max-marker {
+    /* Positioning handled programmatically via inline styles */
+  }
+
+  /* Average marker uses standard percentage positioning - no manual adjustment needed */
+  .avg-marker {
+    /* No special positioning needed - uses calculated avgPercentage */
+  }
+
+  /* Thermometer Labels */
+  .thermometer-labels {
+    margin-top: 4px;
+    height: 32px;
+    position: relative;
+    /* Match the thermometer bar margin to ensure consistent coordinate system */
+    margin-left: var(--thermometer-margin);
+    margin-right: var(--thermometer-margin);
+  }
+
+  .label-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .label {
+    position: absolute;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: monospace;
+    z-index: 5;
+  }
+
+  .min-label {
+    transform: translateX(0%);
+  }
+
+  .avg-label {
+    transform: translateX(-50%);
+  }
+
+  .max-label {
+    transform: translateX(-100%);
+  }
+
+  .label-value {
+    font-size: 0.65rem;
+    color: #495057;
+    font-weight: 600;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .label-text {
+    font-size: 0.55rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+    margin-top: 1px;
+    text-align: center;
+  }
+
+  .avg-label .label-value {
+    color: #007bff;
+    font-weight: 700;
+  }
+
+  .avg-label .label-text {
+    color: #007bff;
   }
 
   .expand-text-btn {
@@ -2047,22 +2453,30 @@
 
   /* Responsive breakpoints */
   @media (max-width: 1400px) {
-    .col-context-images,
-    .col-with-context,
-    .col-without-context {
-      min-width: 220px;
-    }
-  }
-
-  @media (max-width: 1200px) {
-    .col-details {
-      min-width: 180px;
+    .col-id {
+      min-width: 200px;
     }
     
     .col-context-images,
     .col-with-context,
     .col-without-context {
       min-width: 200px;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .col-id {
+      min-width: 180px;
+    }
+    
+    .col-details {
+      min-width: 160px;
+    }
+    
+    .col-context-images,
+    .col-with-context,
+    .col-without-context {
+      min-width: 180px;
     }
   }
 
@@ -2073,17 +2487,17 @@
     }
 
     .col-id {
-      min-width: 50px;
+      min-width: 160px; /* Increased to accommodate combined content */
     }
 
     .col-details {
-      min-width: 150px;
+      min-width: 140px;
     }
 
     .col-context-images,
     .col-with-context,
     .col-without-context {
-      min-width: 180px;
+      min-width: 160px;
     }
 
     .col-score {
@@ -2095,13 +2509,21 @@
     }
 
     .id-content .query-image {
-      max-width: 60px;
-      max-height: 60px;
+      width: 100%; /* Take full column width */
+      max-width: none; /* Remove max-width constraint */
+      height: auto; /* Maintain aspect ratio */
+      max-height: 200px; /* Set reasonable max height */
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      object-fit: cover;
+      display: block;
     }
 
     .query-image {
-      max-width: 60px;
-      max-height: 60px;
+      width: 100%; /* Keep full width on mobile */
+      max-width: none; /* Remove max-width constraint */
+      height: auto; /* Maintain aspect ratio */
+      max-height: 150px; /* Slightly smaller max height for mobile */
     }
 
     .similar-image-item {
