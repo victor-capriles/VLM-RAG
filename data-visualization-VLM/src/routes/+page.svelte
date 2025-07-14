@@ -2,49 +2,32 @@
   import ResultsTable from "$lib/components/ResultsTable.svelte";
   import Dashboard from "$lib/components/Dashboard.svelte";
   import { onMount } from "svelte";
-
-  // Type definitions
-  interface RawResult {
-    validation_id: string;
-    model_name: string;
-    embedding_provider: string;
-    with_context: boolean;
-    image_url: string;
-    real_question: string;
-    crowd_majority: string;
-    similar_images: any[];
-    prompt_used: string;
-    llm_response: string;
-    error: string | null;
-    processing_time: number;
-  }
-
-  interface GroupedResult {
-    id: string;
-    validation_id: string;
-    model_name: string;
-    embedding_provider: string;
-    image_url: string;
-    real_question: string;
-    crowd_majority: string;
-    with_context: RawResult | null;
-    without_context: RawResult | null;
-  }
+  import "$lib/styles/index.css";
+  import type { 
+    RawResult, 
+    GroupedResult, 
+    EvaluationProgress,
+    TabType,
+    ModelFilter,
+    ContextFilter,
+    EmbeddingFilter,
+    ContextImpactFilter
+  } from "$lib/types/index.js";
+  import { INFINITE_SCROLL_CONFIG } from "$lib/types/index.js";
 
   // State variables
   let rawResults: RawResult[] = $state([]);
-  let selectedModel = $state("all");
-  let selectedContext = $state("all");
-  let selectedEmbedding = $state("all");
-  let selectedContextImpact = $state("all");
+  let selectedModel: ModelFilter = $state("all");
+  let selectedContext: ContextFilter = $state("all");
+  let selectedEmbedding: EmbeddingFilter = $state("all");
+  let selectedContextImpact: ContextImpactFilter = $state("all");
   // UI state
   let showFilters = $state(false);
-  let activeTab = $state("results"); // "results" or "dashboard"
+  let activeTab: TabType = $state("results");
 
   // Infinite scroll state
-  let visibleItemsLimit = $state(50); // Start with 50 items
+  let visibleItemsLimit: number = $state(INFINITE_SCROLL_CONFIG.INITIAL_LIMIT);
   let isLoadingMore = $state(false);
-  const ITEMS_PER_LOAD = 25; // Load 25 more items each time
   let scrollSentinel: HTMLElement | undefined; // Element to observe for intersection
   let showAllItems = $state(false); // Toggle to show all items at once
 
@@ -65,7 +48,7 @@
         }
       },
       {
-        rootMargin: "100px", // Trigger 100px before the sentinel becomes visible
+        rootMargin: INFINITE_SCROLL_CONFIG.ROOT_MARGIN,
       }
     );
 
@@ -100,7 +83,7 @@
     selectedContextImpact;
 
     // Reset to initial limit when filters change
-    visibleItemsLimit = 50;
+    visibleItemsLimit = INFINITE_SCROLL_CONFIG.INITIAL_LIMIT;
   });
 
   // Data Loading
@@ -652,10 +635,11 @@
 
     // Simulate slight delay for better UX
     setTimeout(() => {
-      visibleItemsLimit = Math.min(
-        visibleItemsLimit + ITEMS_PER_LOAD,
+      const newLimit = Math.min(
+        visibleItemsLimit + INFINITE_SCROLL_CONFIG.ITEMS_PER_LOAD,
         totalAvailable
       );
+      visibleItemsLimit = newLimit;
       isLoadingMore = false;
     }, 100);
   }
@@ -705,602 +689,292 @@
   <title>Vision RAG Evaluation Viewer</title>
 </svelte:head>
 
-<main class="container">
-  <header>
-    <h1>Vision RAG Evaluation Viewer</h1>
-    <p>
-      Visual analysis tool for comparing model responses with and without
-      context
-    </p>
-  </header>
-
-  <!-- Tab Navigation -->
-  <nav class="tab-nav">
-    <button
-      class="tab-btn"
-      class:active={activeTab === "results"}
-      onclick={() => (activeTab = "results")}
-    >
-      📊 Results
-    </button>
-    <button
-      class="tab-btn"
-      class:active={activeTab === "dashboard"}
-      onclick={() => (activeTab = "dashboard")}
-    >
-      📈 Dashboard
-    </button>
-  </nav>
-
-  <section class="controls">
-    <div class="file-upload">
-      <label for="file-input">Upload File:</label>
-      <p class="upload-help">
-        • Upload a <strong>.jsonl</strong> file with Vision RAG evaluation
-        results<br />
-        • Or upload a <strong>.json</strong> file with saved progress to continue
-        evaluating
-      </p>
-      <input
-        id="file-input"
-        type="file"
-        accept=".jsonl,.json"
-        onchange={handleFileUpload}
-      />
-    </div>
-
-    {#if rawResults.length > 0}
-      <!-- Progress Stats -->
-      <div class="progress-stats">
-        <div class="progress-section">
-          <strong>Progress:</strong>
-          <div class="progress-bar">
-            <div
-              class="progress-bar-fill"
-              style="width: {evaluationProgress().percentage}%"
-            >
-              {evaluationProgress().percentage}%
-            </div>
-          </div>
-          <span
-            >{evaluationProgress().current} of {evaluationProgress().total}
-            evaluated</span
-          >
-        </div>
-
-        <div class="evaluation-legend">
-          <strong>Categories:</strong>
-          <span class="category-mini">✅ Direct (3pts)</span>
-          <span class="category-mini">💡 Inferable (2pts)</span>
-          <span class="category-mini">❌ Missing (1pt)</span>
-          <span class="category-mini">🤯 Hallucination (0pts)</span>
-        </div>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-primary" onclick={exportEvaluations}>
-          📥 Save Progress
-        </button>
-        <button class="btn btn-warning" onclick={clearEvaluations}>
-          🗑️ Clear All Evaluations
-        </button>
-      </div>
-
-      <div class="filters">
-        <div class="filter-group">
-          <label for="model-select">Model:</label>
-          <select id="model-select" bind:value={selectedModel}>
-            <option value="all">All Models</option>
-            {#each modelOptions() as model}
-              <option value={model}>{model}</option>
-            {/each}
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label for="context-select">Context:</label>
-          <select id="context-select" bind:value={selectedContext}>
-            <option value="all">All</option>
-            <option value="with_context">With Context</option>
-            <option value="without_context">Without Context</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label for="embedding-select">Embedding Provider:</label>
-          <select id="embedding-select" bind:value={selectedEmbedding}>
-            <option value="all">All Providers</option>
-            {#each embeddingOptions() as embedding}
-              <option value={embedding}>{embedding}</option>
-            {/each}
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label for="context-impact-select">Context Impact:</label>
-          <select id="context-impact-select" bind:value={selectedContextImpact}>
-            <option value="all">All Results</option>
-            <option value="positive">Positive Impact</option>
-            <option value="negative">Negative Impact</option>
-            <option value="no_change">No Change</option>
-            <option value="evaluated">Has Evaluations</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="stats">
-        <p>Showing {visibleData().length} of {filteredData().length} results</p>
-        <div class="display-options">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              bind:checked={showAllItems}
-              onchange={() => {
-                if (showAllItems) {
-                  // When enabling show all, disconnect the observer
-                  if (observer && scrollSentinel) {
-                    observer.unobserve(scrollSentinel);
-                  }
-                } else {
-                  // When disabling show all, reset to initial limit and reconnect observer
-                  visibleItemsLimit = 50;
-                  if (observer && scrollSentinel) {
-                    observer.observe(scrollSentinel);
-                  }
-                }
-              }}
-            />
-            Show all items at once (disable infinite scroll)
-          </label>
-        </div>
-      </div>
-    {/if}
-  </section>
-
-  <!-- Tab Content -->
-  {#if activeTab === "results"}
-    {#if rawResults.length > 0}
-      <section class="results">
-        <ResultsTable data={visibleData()} />
-
-        <!-- Infinite Scroll Elements (only show when not showing all items) -->
-        {#if !showAllItems}
-          {#if visibleItemsLimit < filteredData().length}
-            <!-- Loading indicator -->
-            {#if isLoadingMore}
-              <div class="loading-indicator">
-                <div class="loading-spinner"></div>
-                <span>Loading more results...</span>
-              </div>
-            {/if}
-
-            <!-- Sentinel element for intersection observer -->
-            <div bind:this={scrollSentinel} class="scroll-sentinel"></div>
-          {:else if filteredData().length > 0}
-            <div class="end-indicator">
-              <span>All {filteredData().length} results loaded</span>
-            </div>
-          {/if}
-        {/if}
-      </section>
-    {:else}
-      <section class="empty-state">
-        <p>No data loaded. Please upload a .jsonl file to get started.</p>
-      </section>
-    {/if}
-  {:else if activeTab === "dashboard"}
-    {#if rawResults.length > 0}
-      <Dashboard data={dashboardData()} />
-    {:else}
-      <section class="empty-state">
-        <p>
-          No data loaded. Please upload a .jsonl file to see dashboard
-          analytics.
-        </p>
-      </section>
-    {/if}
-  {/if}
-</main>
-
 <style>
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-      sans-serif;
-  }
-
-  header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  h1 {
-    color: #333;
-    margin-bottom: 0.5rem;
-    font-size: 2.5rem;
-    font-weight: 600;
-  }
-
-  header p {
-    color: #666;
-    font-size: 1.1rem;
-  }
-
-  .tab-nav {
+  .app-layout {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    background-color: #f0f0f0;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    min-height: 100vh;
+    gap: 20px;
+    padding: 20px;
   }
 
-  .tab-btn {
-    padding: 0.6rem 1.2rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition:
-      background-color 0.2s,
-      transform 0.1s;
-    white-space: nowrap;
-  }
-
-  .tab-btn:hover {
-    background-color: #e0e0e0;
-  }
-
-  .tab-btn.active {
-    background-color: #007bff;
-    color: white;
-  }
-
-  .tab-btn.active:hover {
-    background-color: #0056b3;
-  }
-
-  .tab-btn:active {
-    transform: scale(0.98);
-  }
-
-  .controls {
+  .floating-sidebar {
+    flex: 0 0 280px;
     background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 2rem;
     border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
   }
 
-  .file-upload {
-    margin-bottom: 1.5rem;
+  .main-content {
+    flex: 1;
+    min-height: 100vh;
   }
 
-  .file-upload label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #333;
-  }
-
-  .file-upload input[type="file"] {
-    padding: 0.5rem;
-    border: 2px dashed #007bff;
-    border-radius: 4px;
-    background: white;
-    width: 100%;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-
-  .file-upload input[type="file"]:hover {
-    border-color: #0056b3;
-  }
-
-  .upload-help {
-    font-size: 0.85rem;
-    color: #666;
-    margin-bottom: 0.5rem;
-    line-height: 1.4;
-  }
-
-  .upload-help strong {
-    color: #333;
+  .sidebar-title {
+    font-size: 1.1rem;
     font-weight: 600;
-  }
-
-  .action-buttons {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .btn {
-    padding: 0.6rem 1rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition:
-      background-color 0.2s,
-      transform 0.1s;
-  }
-
-  .btn-primary {
-    background-color: #007bff;
-    color: white;
-  }
-
-  .btn-primary:hover {
-    background-color: #0056b3;
-  }
-
-  .btn-warning {
-    background-color: #ffc107;
-    color: #212529;
-  }
-
-  .btn-warning:hover {
-    background-color: #e0a800;
-  }
-
-  .btn:active {
-    transform: scale(0.98);
-  }
-
-  .filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 16px;
+    color: #333;
   }
 
   .filter-group {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 16px;
   }
 
   .filter-group label {
-    margin-bottom: 0.25rem;
+    display: block;
+    margin-bottom: 4px;
     font-weight: 500;
-    color: #333;
-    font-size: 0.9rem;
+    color: #555;
   }
 
-  select {
-    padding: 0.5rem;
+  .filter-group select {
+    width: 100%;
+    padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     background: white;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: border-color 0.2s;
   }
 
-  select:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-  }
-
-  .stats {
-    text-align: center;
-    color: #666;
-    font-size: 0.9rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e9ecef;
-  }
-
-  .display-options {
-    margin-top: 0.75rem;
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    color: #333;
-    user-select: none;
-  }
-
-  .checkbox-label input[type="checkbox"] {
-    cursor: pointer;
-    width: 16px;
-    height: 16px;
-    accent-color: #007bff;
-  }
-
-  .checkbox-label:hover {
-    color: #007bff;
-  }
-
-  .results {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 3rem;
-    color: #666;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 2px dashed #ddd;
-  }
-
-  .empty-state p {
-    font-size: 1.1rem;
-  }
-
-  .progress-stats {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: #f8f9fa;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    border: 1px solid #e9ecef;
-    font-size: 0.85rem;
-  }
-
-  .progress-section {
-    flex: 1;
-    text-align: left;
-  }
-
-  .progress-section strong {
-    font-weight: 600;
-    color: #333;
-    margin-right: 0.5rem;
-  }
-
-  .evaluation-legend {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    margin-left: 1rem;
-  }
-
-  .category-mini {
-    font-size: 0.75rem;
-    color: #555;
-    background-color: #e9ecef;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    border: 1px solid #dee2e6;
-  }
-
-  .progress-bar {
-    background-color: #e9ecef;
-    border-radius: 6px;
-    height: 16px;
-    width: 200px;
-    overflow: hidden;
-  }
-
-  .progress-bar-fill {
-    background: linear-gradient(90deg, #28a745, #20c997);
-    height: 100%;
-    transition: width 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
-
-  .loading-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    color: #666;
-    font-size: 0.9rem;
-  }
-
-  .loading-spinner {
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #3498db;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
+  /* Responsive behavior */
+  @media (max-width: 1200px) {
+    .floating-sidebar {
+      flex: 0 0 240px;
     }
   }
 
-  .end-indicator {
-    text-align: center;
-    padding: 1rem;
-    color: #666;
-    font-size: 0.9rem;
-  }
-
-  .scroll-sentinel {
-    height: 1px;
-    width: 100%;
+  @media (max-width: 1024px) {
+    .floating-sidebar {
+      flex: 0 0 200px;
+    }
   }
 
   @media (max-width: 768px) {
-    .container {
-      padding: 1rem;
-    }
-
-    h1 {
-      font-size: 2rem;
-    }
-
-    .filters {
-      grid-template-columns: 1fr;
-    }
-
-    .progress-stats {
+    .app-layout {
       flex-direction: column;
-      gap: 0.5rem;
-      padding: 0.5rem;
     }
-
-    .evaluation-legend {
-      margin-left: 0;
-      flex-wrap: wrap;
-      gap: 0.25rem;
-    }
-
-    .category-mini {
-      font-size: 0.7rem;
-      padding: 0.2rem 0.5rem;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 14px;
-    }
-
-    .progress-bar-fill {
-      font-size: 0.65rem;
-    }
-
-    .action-buttons {
-      justify-content: center;
-    }
-
-    .loading-indicator {
-      flex-direction: column;
-      gap: 0.75rem;
-      padding: 1.5rem 1rem;
-    }
-
-    .tab-nav {
-      margin-bottom: 1rem;
-      padding: 0.4rem 0.5rem;
-    }
-
-    .tab-btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
+    
+    .floating-sidebar {
+      flex: none;
+      position: relative;
+      top: 0;
     }
   }
+
+  .container {
+    width: 100%;
+    padding: 20px;
+  }
 </style>
+
+<div class="app-layout">
+  <!-- Floating Sidebar -->
+  <aside class="floating-sidebar">
+    <h2 class="sidebar-title">Filters</h2>
+    
+    {#if rawResults.length > 0}
+      <div class="filter-group">
+        <label for="model-select">Model:</label>
+        <select id="model-select" bind:value={selectedModel}>
+          <option value="all">All Models</option>
+          {#each modelOptions() as model}
+            <option value={model}>{model}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="context-select">Context:</label>
+        <select id="context-select" bind:value={selectedContext}>
+          <option value="all">All</option>
+          <option value="with_context">With Context</option>
+          <option value="without_context">Without Context</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="embedding-select">Embedding Provider:</label>
+        <select id="embedding-select" bind:value={selectedEmbedding}>
+          <option value="all">All Providers</option>
+          {#each embeddingOptions() as embedding}
+            <option value={embedding}>{embedding}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="context-impact-select">Context Impact:</label>
+        <select id="context-impact-select" bind:value={selectedContextImpact}>
+          <option value="all">All Results</option>
+          <option value="positive">Positive Impact</option>
+          <option value="negative">Negative Impact</option>
+          <option value="no_change">No Change</option>
+          <option value="evaluated">Has Evaluations</option>
+        </select>
+      </div>
+    {:else}
+      <p style="color: #666; font-size: 0.9rem;">Upload data to see filters</p>
+    {/if}
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <main class="container">
+      <header>
+        <h1>Vision RAG Evaluation Viewer</h1>
+        <p>
+          Visual analysis tool for comparing model responses with and without
+          context
+        </p>
+      </header>
+
+      <!-- Tab Navigation -->
+      <nav class="tab-nav">
+        <button
+          class="tab-btn"
+          class:active={activeTab === "results"}
+          onclick={() => (activeTab = "results")}
+        >
+          📊 Results
+        </button>
+        <button
+          class="tab-btn"
+          class:active={activeTab === "dashboard"}
+          onclick={() => (activeTab = "dashboard")}
+        >
+          📈 Dashboard
+        </button>
+      </nav>
+
+      <section class="controls">
+        <div class="file-upload">
+          <label for="file-input">Upload File:</label>
+          <p class="upload-help">
+            • Upload a <strong>.jsonl</strong> file with Vision RAG evaluation
+            results<br />
+            • Or upload a <strong>.json</strong> file with saved progress to continue
+            evaluating
+          </p>
+          <input
+            id="file-input"
+            type="file"
+            accept=".jsonl,.json"
+            onchange={handleFileUpload}
+          />
+        </div>
+
+        {#if rawResults.length > 0}
+          <!-- Progress Stats -->
+          <div class="progress-stats">
+            <div class="progress-section">
+              <strong>Progress:</strong>
+              <div class="progress-bar">
+                <div
+                  class="progress-bar-fill"
+                  style="width: {evaluationProgress().percentage}%"
+                >
+                  {evaluationProgress().percentage}%
+                </div>
+              </div>
+              <span
+                >{evaluationProgress().current} of {evaluationProgress().total}
+                evaluated</span
+              >
+            </div>
+
+            <div class="evaluation-legend">
+              <strong>Categories:</strong>
+              <span class="category-mini">✅ Direct (3pts)</span>
+              <span class="category-mini">💡 Inferable (2pts)</span>
+              <span class="category-mini">❌ Missing (1pt)</span>
+              <span class="category-mini">🤯 Hallucination (0pts)</span>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn btn-primary" onclick={exportEvaluations}>
+              📥 Save Progress
+            </button>
+            <button class="btn btn-warning" onclick={clearEvaluations}>
+              🗑️ Clear All Evaluations
+            </button>
+          </div>
+
+          <div class="stats">
+            <p>Showing {visibleData().length} of {filteredData().length} results</p>
+            <div class="display-options">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  bind:checked={showAllItems}
+                  onchange={() => {
+                    if (showAllItems) {
+                      // When enabling show all, disconnect the observer
+                      if (observer && scrollSentinel) {
+                        observer.unobserve(scrollSentinel);
+                      }
+                    } else {
+                      // When disabling show all, reset to initial limit and reconnect observer
+                      visibleItemsLimit = INFINITE_SCROLL_CONFIG.INITIAL_LIMIT;
+                      if (observer && scrollSentinel) {
+                        observer.observe(scrollSentinel);
+                      }
+                    }
+                  }}
+                />
+                Show all items at once (disable infinite scroll)
+              </label>
+            </div>
+          </div>
+        {/if}
+      </section>
+
+      <!-- Tab Content -->
+      {#if activeTab === "results"}
+        {#if rawResults.length > 0}
+          <section class="results">
+            <ResultsTable data={visibleData()} />
+
+            <!-- Infinite Scroll Elements (only show when not showing all items) -->
+            {#if !showAllItems}
+              {#if visibleItemsLimit < filteredData().length}
+                <!-- Loading indicator -->
+                {#if isLoadingMore}
+                  <div class="loading-indicator">
+                    <div class="loading-spinner"></div>
+                    <span>Loading more results...</span>
+                  </div>
+                {/if}
+
+                <!-- Sentinel element for intersection observer -->
+                <div bind:this={scrollSentinel} class="scroll-sentinel"></div>
+              {:else if filteredData().length > 0}
+                <div class="end-indicator">
+                  <span>All {filteredData().length} results loaded</span>
+                </div>
+              {/if}
+            {/if}
+          </section>
+        {:else}
+          <section class="empty-state">
+            <p>No data loaded. Please upload a .jsonl file to get started.</p>
+          </section>
+        {/if}
+      {:else if activeTab === "dashboard"}
+        {#if rawResults.length > 0}
+          <Dashboard data={dashboardData()} />
+        {:else}
+          <section class="empty-state">
+            <p>
+              No data loaded. Please upload a .jsonl file to see dashboard
+              analytics.
+            </p>
+          </section>
+        {/if}
+      {/if}
+    </main>
+  </div>
+</div>

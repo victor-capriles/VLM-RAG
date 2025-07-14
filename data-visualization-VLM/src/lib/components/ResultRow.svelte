@@ -45,9 +45,9 @@
   let modalImages: ImageData[] = $state([]);
   let currentImageIndex = $state(0);
 
-  // Text expansion state
-  let isWithContextExpanded = $state(false);
-  let isWithoutContextExpanded = $state(false);
+  // Text expansion state - default to expanded (unfolded)
+  let isWithContextExpanded = $state(true);
+  let isWithoutContextExpanded = $state(true);
 
   // Evaluation types
   type EvaluationType =
@@ -452,6 +452,88 @@
     return distance.toFixed(3);
   }
 
+  // Calculate length statistics for thermometer
+  function getLengthStats(withContext: boolean): {
+    min: number;
+    max: number;
+    average: number;
+    quartiles: number[];
+  } {
+    const lengths: number[] = [];
+    
+    // Collect word counts for the specified context type
+    allResults.forEach((res) => {
+      const response = withContext ? res.with_context?.llm_response : res.without_context?.llm_response;
+      if (response) {
+        const wordCount = response.trim().split(/\s+/).length;
+        lengths.push(wordCount);
+      }
+    });
+    
+    if (lengths.length === 0) return { min: 0, max: 100, average: 50, quartiles: [0, 25, 50, 75, 100] };
+    
+    // Sort lengths for quartile calculation
+    const sortedLengths = [...lengths].sort((a, b) => a - b);
+    const min = Math.min(...lengths);
+    const max = Math.max(...lengths);
+    const average = lengths.reduce((sum, len) => sum + len, 0) / lengths.length;
+    
+    // Calculate quartiles based on actual min-max range
+    const range = max - min;
+    const quartiles = [
+      min,                                        // 0% (min)
+      min + range * 0.25,                        // 25%
+      min + range * 0.5,                         // 50%
+      min + range * 0.75,                        // 75%
+      max                                        // 100% (max)
+    ];
+    
+    return { min, max, average, quartiles };
+  }
+
+  // Create thermometer data for display
+  function getThermometerData(wordCount: number, withContext: boolean): {
+    percentage: number;
+    color: string;
+    stats: { min: number; max: number; average: number; quartiles: number[] };
+  } {
+    const stats = getLengthStats(withContext);
+    const range = stats.max - stats.min;
+    const normalizedValue = range > 0 ? (wordCount - stats.min) / range : 0.5;
+    const percentage = Math.min(100, Math.max(5, normalizedValue * 100)); // Ensure minimum 5% visibility
+    
+    // Calculate color based on position in min-max range
+    let color: string;
+    
+    // Handle edge case where range is 0 (all values are the same)
+    if (range === 0) {
+      color = '#ffc107'; // Yellow for uniform data
+    } else if (normalizedValue <= 0.33) {
+      // Green to yellow (0-33%)
+      const localRatio = normalizedValue / 0.33;
+      const r = Math.round(40 + (255 - 40) * localRatio);
+      const g = Math.round(167 + (193 - 167) * localRatio);
+      const b = Math.round(69 + (7 - 69) * localRatio);
+      color = `rgb(${r}, ${g}, ${b})`;
+    } else if (normalizedValue <= 0.66) {
+      // Yellow to orange (33-66%)
+      const localRatio = (normalizedValue - 0.33) / 0.33;
+      const r = Math.round(255);
+      const g = Math.round(193 + (165 - 193) * localRatio);
+      const b = Math.round(7);
+      color = `rgb(${r}, ${g}, ${b})`;
+    } else {
+      // Orange to red (66-100%)
+      const localRatio = (normalizedValue - 0.66) / 0.34;
+      const r = Math.round(255 + (220 - 255) * localRatio);
+      const g = Math.round(165 + (53 - 165) * localRatio);
+      const b = Math.round(0 + (69 - 0) * localRatio);
+      color = `rgb(${r}, ${g}, ${b})`;
+    }
+    
+    return { percentage, color, stats };
+  }
+
   // Get conciseness info for display
   function getConcisenessMeter(response: string): {
     wordCount: number;
@@ -824,21 +906,6 @@
                 🤯
               </button>
             </div>
-            <div class="processing-time">
-              <span class="time-text">
-                {formatProcessingTime(result.with_context.processing_time)}
-              </span>
-              <div class="time-bar-container">
-                <div
-                  class="time-bar"
-                  style="width: {getTimeBarProps(
-                    result.with_context.processing_time
-                  ).width}%; background-color: {getTimeBarProps(
-                    result.with_context.processing_time
-                  ).color};"
-                ></div>
-              </div>
-            </div>
           </div>
         </div>
         <div class="keywords-info">
@@ -855,23 +922,59 @@
           </span>
         </div>
 
-        <!-- Conciseness Indicator -->
+        <!-- Length Thermometer -->
         {@const concisenessMeter = getConcisenessMeter(
           result.with_context.llm_response
         )}
+        {@const thermometerData = getThermometerData(
+          concisenessMeter.wordCount,
+          true
+        )}
+        {@const range = thermometerData.stats.max - thermometerData.stats.min}
+        {@const avgPercentage = range > 0 ? Math.min(100, ((thermometerData.stats.average - thermometerData.stats.min) / range) * 100) : 50}
         <div class="conciseness-info">
-          <div class="conciseness-meter">
+          <div class="thermometer-section">
             <span class="conciseness-label">Length:</span>
-            <span
-              class="conciseness-badge"
-              style="background-color: {concisenessMeter.color}; color: white;"
-              title="{concisenessMeter.description} ({concisenessMeter.wordCount} words, penalty: -{concisenessMeter.penalty.toFixed(
-                1
-              )})"
-            >
-              {concisenessMeter.level}
-            </span>
-            <span class="word-count">{concisenessMeter.wordCount} words</span>
+            <div class="length-thermometer">
+              <div class="thermometer-bar">
+                <div 
+                  class="thermometer-fill"
+                  style="width: {thermometerData.percentage}%; background-color: {thermometerData.color}"
+                ></div>
+                
+                <!-- Quartile markings -->
+                <div class="thermometer-markings">
+                  <div class="marking" style="left: 0%"></div>
+                  <div class="marking" style="left: 25%"></div>
+                  <div class="marking" style="left: 50%"></div>
+                  <div class="marking" style="left: 75%"></div>
+                  <div class="marking" style="left: 100%"></div>
+                </div>
+                
+                <!-- Average marker -->
+                <div 
+                  class="average-marker" 
+                  style="left: {avgPercentage}%"
+                  title="Average: {Math.round(thermometerData.stats.average)} words"
+                ></div>
+                
+                <!-- Current value indicator -->
+                <div 
+                  class="current-value-indicator" 
+                  style="left: {thermometerData.percentage}%"
+                  title="Current: {concisenessMeter.wordCount} words"
+                ></div>
+              </div>
+            </div>
+            <div class="thermometer-info">
+              <span class="word-count">{concisenessMeter.wordCount} words</span>
+              <!-- Min/Max/Average display -->
+              <div class="thermometer-stats">
+                <span class="stat-item">Min: {thermometerData.stats.min}</span>
+                <span class="stat-item">Avg: {Math.round(thermometerData.stats.average)}</span>
+                <span class="stat-item">Max: {thermometerData.stats.max}</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -882,14 +985,6 @@
           </div>
         {:else}
           <div class="response-text-container">
-            <div class="response-text">
-              {@html highlightKeywords(
-                getDisplayText(
-                  result.with_context.llm_response,
-                  isWithContextExpanded
-                )
-              )}
-            </div>
             {#if shouldShowExpandButton(result.with_context.llm_response)}
               <button
                 class="expand-text-btn"
@@ -918,6 +1013,14 @@
                 </svg>
               </button>
             {/if}
+            <div class="response-text">
+              {@html highlightKeywords(
+                getDisplayText(
+                  result.with_context.llm_response,
+                  isWithContextExpanded
+                )
+              )}
+            </div>
           </div>
         {/if}
       {:else}
@@ -975,41 +1078,76 @@
                 🤯
               </button>
             </div>
-            <div class="processing-time">
-              <span class="time-text">
-                {formatProcessingTime(result.without_context.processing_time)}
-              </span>
-              <div class="time-bar-container">
-                <div
-                  class="time-bar"
-                  style="width: {getTimeBarProps(
-                    result.without_context.processing_time
-                  ).width}%; background-color: {getTimeBarProps(
-                    result.without_context.processing_time
-                  ).color};"
-                ></div>
-              </div>
-            </div>
           </div>
         </div>
 
-        <!-- Conciseness Indicator -->
+        <div class="keywords-info">
+          <span class="keywords-label">Highlighting:</span>
+          <span class="keywords-list">
+            {#each getHighlightKeywords().slice(0, 6) as keyword}
+              <span class="keyword-tag">{keyword}</span>
+            {/each}
+            {#if getHighlightKeywords().length > 6}
+              <span class="keyword-tag more"
+                >+{getHighlightKeywords().length - 6}</span
+              >
+            {/if}
+          </span>
+        </div>
+
+        <!-- Length Thermometer -->
         {@const concisenessMeter = getConcisenessMeter(
           result.without_context.llm_response
         )}
+        {@const thermometerData = getThermometerData(
+          concisenessMeter.wordCount,
+          false
+        )}
+        {@const range = thermometerData.stats.max - thermometerData.stats.min}
+        {@const avgPercentage = range > 0 ? Math.min(100, ((thermometerData.stats.average - thermometerData.stats.min) / range) * 100) : 50}
         <div class="conciseness-info">
-          <div class="conciseness-meter">
+          <div class="thermometer-section">
             <span class="conciseness-label">Length:</span>
-            <span
-              class="conciseness-badge"
-              style="background-color: {concisenessMeter.color}; color: white;"
-              title="{concisenessMeter.description} ({concisenessMeter.wordCount} words, penalty: -{concisenessMeter.penalty.toFixed(
-                1
-              )})"
-            >
-              {concisenessMeter.level}
-            </span>
-            <span class="word-count">{concisenessMeter.wordCount} words</span>
+            <div class="length-thermometer">
+              <div class="thermometer-bar">
+                <div 
+                  class="thermometer-fill"
+                  style="width: {thermometerData.percentage}%; background-color: {thermometerData.color}"
+                ></div>
+                
+                <!-- Quartile markings -->
+                <div class="thermometer-markings">
+                  <div class="marking" style="left: 0%"></div>
+                  <div class="marking" style="left: 25%"></div>
+                  <div class="marking" style="left: 50%"></div>
+                  <div class="marking" style="left: 75%"></div>
+                  <div class="marking" style="left: 100%"></div>
+                </div>
+                
+                <!-- Average marker -->
+                <div 
+                  class="average-marker" 
+                  style="left: {avgPercentage}%"
+                  title="Average: {Math.round(thermometerData.stats.average)} words"
+                ></div>
+                
+                <!-- Current value indicator -->
+                <div 
+                  class="current-value-indicator" 
+                  style="left: {thermometerData.percentage}%"
+                  title="Current: {concisenessMeter.wordCount} words"
+                ></div>
+              </div>
+            </div>
+            <div class="thermometer-info">
+              <span class="word-count">{concisenessMeter.wordCount} words</span>
+              <!-- Min/Max/Average display -->
+              <div class="thermometer-stats">
+                <span class="stat-item">Min: {thermometerData.stats.min}</span>
+                <span class="stat-item">Avg: {Math.round(thermometerData.stats.average)}</span>
+                <span class="stat-item">Max: {thermometerData.stats.max}</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1020,14 +1158,6 @@
           </div>
         {:else}
           <div class="response-text-container">
-            <div class="response-text">
-              {@html highlightKeywords(
-                getDisplayText(
-                  result.without_context.llm_response,
-                  isWithoutContextExpanded
-                )
-              )}
-            </div>
             {#if shouldShowExpandButton(result.without_context.llm_response)}
               <button
                 class="expand-text-btn"
@@ -1056,6 +1186,14 @@
                 </svg>
               </button>
             {/if}
+            <div class="response-text">
+              {@html highlightKeywords(
+                getDisplayText(
+                  result.without_context.llm_response,
+                  isWithoutContextExpanded
+                )
+              )}
+            </div>
           </div>
         {/if}
       {:else}
@@ -1131,57 +1269,50 @@
 
   /* Column widths - Fixed layout */
   .col-id {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 8%;
+    min-width: 60px;
     box-sizing: border-box;
   }
 
   .col-details {
-    width: 250px;
-    min-width: 250px;
-    max-width: 250px;
+    width: 20%;
+    min-width: 200px;
     box-sizing: border-box;
   }
 
   .col-context-images {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
+    width: 24%;
+    min-width: 250px;
     box-sizing: border-box;
   }
 
   .col-with-context {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
+    width: 24%;
+    min-width: 250px;
     box-sizing: border-box;
   }
 
   .col-without-context {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
+    width: 24%;
+    min-width: 250px;
     box-sizing: border-box;
   }
 
   .col-score {
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
+    width: 6%;
+    min-width: 50px;
     text-align: center;
     box-sizing: border-box;
   }
 
   .col-context-impact {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 8%;
+    min-width: 70px;
     text-align: center;
     box-sizing: border-box;
   }
 
-  /* Prevent layout shift and page scrolling */
+  /* Prevent layout shift and ensure proper wrapping */
   .col-id,
   .col-details,
   .col-context-images,
@@ -1192,7 +1323,11 @@
     vertical-align: top;
     overflow-wrap: break-word;
     word-wrap: break-word;
+    hyphens: auto;
+    white-space: normal;
+    overflow: hidden;
     position: relative;
+    max-width: 0; /* Forces cells to respect percentage widths */
   }
 
   .expand-text-btn:hover {
@@ -1269,6 +1404,10 @@
     margin: 0;
     line-height: 1.4;
     color: #333;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
   }
 
   /* Model info in details */
@@ -1674,8 +1813,12 @@
     line-height: 1.4;
     color: #333;
     word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
     white-space: pre-wrap;
     margin-bottom: 0.5rem;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   /* Keyword highlighting */
@@ -1739,10 +1882,17 @@
     border: 1px solid #e9ecef;
   }
 
-  .conciseness-meter {
+  .thermometer-section {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .thermometer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
   }
 
   .conciseness-label {
@@ -1769,6 +1919,86 @@
     font-family: monospace;
   }
 
+  /* Length Thermometer Styles */
+  .length-thermometer {
+    width: 100%;
+    min-width: 120px;
+  }
+
+  .thermometer-bar {
+    height: 12px;
+    background: #e9ecef;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .thermometer-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    background-color: #28a745; /* Fallback color in case dynamic color fails */
+    min-width: 2px; /* Ensure visibility even with small percentages */
+  }
+
+  .thermometer-markings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+  }
+
+  .marking {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 1px;
+    background: #495057;
+    transform: translateX(-0.5px);
+  }
+
+  .average-marker {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: #007bff;
+    transform: translateX(-1px);
+    border-radius: 1px;
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+  }
+
+  .current-value-indicator {
+    position: absolute;
+    top: -8px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid #dc3545;
+    transform: translateX(-4px);
+    z-index: 10;
+  }
+
+  .thermometer-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 0.65rem;
+    color: #666;
+    font-family: monospace;
+  }
+
+  .stat-item {
+    flex: 1;
+    text-align: center;
+    padding: 1px 2px;
+  }
+
   .expand-text-btn {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
@@ -1777,7 +2007,7 @@
     font-size: 0.7rem;
     color: #007bff;
     cursor: pointer;
-    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
@@ -1815,6 +2045,27 @@
     padding: 1rem 0;
   }
 
+  /* Responsive breakpoints */
+  @media (max-width: 1400px) {
+    .col-context-images,
+    .col-with-context,
+    .col-without-context {
+      min-width: 220px;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .col-details {
+      min-width: 180px;
+    }
+    
+    .col-context-images,
+    .col-with-context,
+    .col-without-context {
+      min-width: 200px;
+    }
+  }
+
   /* Mobile Responsiveness */
   @media (max-width: 768px) {
     .result-row td {
@@ -1822,41 +2073,25 @@
     }
 
     .col-id {
-      width: 70px;
-      min-width: 70px;
-    }
-
-    .col-details {
-      width: 200px;
-      min-width: 200px;
-    }
-
-    .col-context-images {
-      width: 280px;
-      min-width: 280px;
-      max-width: 280px;
-    }
-
-    .col-with-context {
-      width: 280px;
-      min-width: 280px;
-      max-width: 280px;
-    }
-
-    .col-without-context {
-      width: 280px;
-      min-width: 280px;
-      max-width: 280px;
-    }
-
-    .col-score {
-      width: 50px;
       min-width: 50px;
     }
 
+    .col-details {
+      min-width: 150px;
+    }
+
+    .col-context-images,
+    .col-with-context,
+    .col-without-context {
+      min-width: 180px;
+    }
+
+    .col-score {
+      min-width: 45px;
+    }
+
     .col-context-impact {
-      width: 70px;
-      min-width: 70px;
+      min-width: 60px;
     }
 
     .id-content .query-image {

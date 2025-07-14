@@ -1,0 +1,61 @@
+/* Responsive design */
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-md);
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .progress-stats {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+  }
+
+  .evaluation-legend {
+    margin-left: 0;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
+  .category-mini {
+    font-size: 0.7rem;
+    padding: 0.2rem var(--spacing-sm);
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 14px;
+  }
+
+  .progress-bar-fill {
+    font-size: 0.65rem;
+  }
+
+  .action-buttons {
+    justify-content: center;
+  }
+
+  .loading-indicator {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .tab-nav {
+    margin-bottom: var(--spacing-md);
+    padding: 0.4rem var(--spacing-sm);
+  }
+
+  .tab-btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.9rem;
+  }
+} 

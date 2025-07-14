@@ -330,7 +330,7 @@
 <style>
   .table-container {
     width: 100%;
-    overflow-x: auto;
+    /* Remove overflow-x: auto to prevent horizontal scrolling */
   }
 
   .results-table {
@@ -338,7 +338,7 @@
     border-collapse: collapse;
     font-size: 0.9rem;
     background: white;
-    table-layout: fixed; /* Fixed layout to prevent column resizing */
+    table-layout: auto; /* Changed from fixed to auto for flexible columns */
   }
 
   .results-table thead th {
@@ -391,53 +391,47 @@
     font-weight: bold;
   }
 
+  /* Flexible column widths - percentages instead of fixed pixels */
   .col-id {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 8%;
+    min-width: 60px;
     box-sizing: border-box;
   }
 
   .col-details {
-    width: 250px;
-    min-width: 250px;
-    max-width: 250px;
+    width: 20%;
+    min-width: 200px;
     box-sizing: border-box;
   }
 
   .col-context-images {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
+    width: 24%;
+    min-width: 250px;
     box-sizing: border-box;
   }
 
   .col-with-context {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
+    width: 24%;
+    min-width: 250px;
     box-sizing: border-box;
   }
 
   .col-without-context {
-    width: 300px;
-    min-width: 300px;
-    max-width: 300px;
+    width: 24%;
+    min-width: 250px;
     box-sizing: border-box;
   }
 
   .col-score {
-    width: 60px;
-    min-width: 60px;
-    max-width: 60px;
+    width: 6%;
+    min-width: 50px;
     text-align: center;
     box-sizing: border-box;
   }
 
   .col-context-impact {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 8%;
+    min-width: 70px;
     text-align: center;
     box-sizing: border-box;
   }
@@ -484,6 +478,25 @@
     text-align: left;
     vertical-align: top;
     font-size: 0.85rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    white-space: normal;
+    overflow: hidden;
+    max-width: 0; /* Forces table to respect percentage widths */
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1400px) {
+    .results-table {
+      font-size: 0.85rem;
+    }
+    
+    .col-context-images,
+    .col-with-context,
+    .col-without-context {
+      min-width: 220px;
+    }
   }
 
   @media (max-width: 1200px) {
@@ -491,8 +504,13 @@
       font-size: 0.8rem;
     }
 
-    .col-response {
-      width: 250px;
+    .col-details {
+      min-width: 180px;
+    }
+    
+    .col-context-images,
+    .col-with-context,
+    .col-without-context {
       min-width: 200px;
     }
   }
@@ -512,38 +530,25 @@
     }
 
     .col-id {
-      width: 100px;
-      min-width: 80px;
-    }
-
-    .col-details {
-      width: 200px;
-      min-width: 150px;
-    }
-
-    .col-image {
-      width: 150px;
-      min-width: 120px;
-    }
-
-    .col-correctness {
-      width: 60px;
       min-width: 50px;
     }
 
-    .col-context-impact {
-      width: 80px;
-      min-width: 70px;
+    .col-details {
+      min-width: 150px;
     }
 
-    .col-context {
-      width: 150px;
-      min-width: 120px;
-    }
-
-    .col-response {
-      width: 200px;
+    .col-context-images,
+    .col-with-context,
+    .col-without-context {
       min-width: 180px;
+    }
+
+    .col-score {
+      min-width: 45px;
+    }
+
+    .col-context-impact {
+      min-width: 60px;
     }
 
     .sort-info {

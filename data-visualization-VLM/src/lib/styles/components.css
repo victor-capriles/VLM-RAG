@@ -1,0 +1,174 @@
+/* Component styles */
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+  background-color: #f0f0f0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-dashed);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tab-btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  transition: background-color 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background-color: var(--border-dashed);
+}
+
+.tab-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.tab-btn.active:hover {
+  background-color: var(--primary-hover);
+}
+
+.tab-btn:active {
+  transform: scale(0.98);
+}
+
+/* Buttons */
+.btn {
+  padding: 0.6rem var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-warning {
+  background-color: var(--warning-color);
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background-color: var(--warning-hover);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Form Elements */
+.file-upload {
+  margin-bottom: var(--spacing-lg);
+}
+
+.file-upload label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.file-upload input[type="file"] {
+  padding: var(--spacing-sm);
+  border: 2px dashed var(--primary-color);
+  border-radius: 4px;
+  background: var(--background-white);
+  width: 100%;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.file-upload input[type="file"]:hover {
+  border-color: var(--primary-hover);
+}
+
+.upload-help {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.4;
+}
+
+.upload-help strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+select {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  background: var(--background-white);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-focus);
+}
+
+/* Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
+}
+
+.checkbox-label:hover {
+  color: var(--primary-color);
+} 

@@ -1,0 +1,50 @@
+/* Base styles and resets */
+:root {
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --warning-color: #ffc107;
+  --warning-hover: #e0a800;
+  --success-color: #28a745;
+  --success-alt: #20c997;
+  
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-muted: #555;
+  
+  --background-light: #f8f9fa;
+  --background-white: #ffffff;
+  --border-light: #e9ecef;
+  --border-medium: #dee2e6;
+  --border-dark: #ddd;
+  --border-dashed: #e0e0e0;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  
+  --border-radius: 6px;
+  --border-radius-lg: 8px;
+  
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-size-sm: 0.85rem;
+  --font-size-xs: 0.75rem;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+}
+
+body {
+  font-family: var(--font-family);
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+} 
