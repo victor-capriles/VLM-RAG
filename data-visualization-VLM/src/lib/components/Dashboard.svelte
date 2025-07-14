@@ -1020,6 +1020,9 @@
 </div>
 
 <style>
+  /* ============================================================================
+   * BASE LAYOUT
+   * ============================================================================ */
   .dashboard {
     background: white;
     border-radius: 8px;
@@ -1043,10 +1046,24 @@
     padding-bottom: 0.5rem;
   }
 
-  .summary-section {
+  /* ============================================================================
+   * SECTION CONTAINERS
+   * ============================================================================ */
+  .summary-section,
+  .comparison-section {
     margin-bottom: 2rem;
   }
 
+  .comparison-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+  }
+
+  /* ============================================================================
+   * SUMMARY CARDS
+   * ============================================================================ */
   .summary-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1072,14 +1089,9 @@
     opacity: 0.9;
   }
 
-  .comparison-section {
-    margin-bottom: 2rem;
-    background: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-  }
-
+  /* ============================================================================
+   * CHART CONTAINERS & ROWS
+   * ============================================================================ */
   .chart-container {
     display: flex;
     flex-direction: column;
@@ -1101,7 +1113,11 @@
     color: #333;
   }
 
-  .performance-bars {
+  /* ============================================================================
+   * PERFORMANCE BARS & METRICS
+   * ============================================================================ */
+  .performance-bars,
+  .length-bars {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1109,19 +1125,26 @@
     margin-left: 1rem;
   }
 
-  .performance-item {
+  .length-bars {
+    gap: 0.75rem;
+  }
+
+  .performance-item,
+  .length-item {
     display: flex;
     align-items: center;
     gap: 1rem;
   }
 
-  .performance-label {
+  .performance-label,
+  .length-label {
     min-width: 120px;
     font-size: 0.9rem;
     color: #666;
   }
 
-  .progress-bar-chart {
+  .progress-bar-chart,
+  .length-bar {
     flex: 1;
     height: 20px;
     background-color: #e9ecef;
@@ -1130,16 +1153,33 @@
     max-width: 200px;
   }
 
-  .progress-fill-chart {
+  .length-bar {
+    height: 16px;
+    border-radius: 8px;
+  }
+
+  .progress-fill-chart,
+  .length-fill {
     height: 100%;
     border-radius: 10px;
     transition: width 0.3s ease;
+  }
+
+  .length-fill {
+    border-radius: 8px;
   }
 
   .performance-score {
     min-width: 40px;
     font-weight: 600;
     color: #333;
+  }
+
+  .length-value {
+    min-width: 80px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
   }
 
   .impact-indicator {
@@ -1152,6 +1192,9 @@
     text-align: center;
   }
 
+  /* ============================================================================
+   * ANALYSIS CARDS
+   * ============================================================================ */
   .context-analysis {
     margin-top: 1rem;
   }
@@ -1192,115 +1235,9 @@
     opacity: 0.9;
   }
 
-  .ranking-table {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .ranking-row {
-    display: flex;
-    align-items: center;
-    background: white;
-    padding: 1rem;
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
-    gap: 1rem;
-  }
-
-  .rank-position {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #007bff;
-    min-width: 40px;
-  }
-
-  .rank-model {
-    flex: 1;
-    font-weight: 600;
-    color: #333;
-  }
-
-  .rank-score {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    min-width: 200px;
-  }
-
-  .score-bar {
-    flex: 1;
-    height: 16px;
-    background-color: #e9ecef;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .score-fill {
-    height: 100%;
-    border-radius: 8px;
-    transition: width 0.3s ease;
-  }
-
-  .score-text {
-    font-weight: 600;
-    color: #333;
-    min-width: 70px;
-  }
-
-  .rank-count {
-    font-size: 0.9rem;
-    color: #666;
-    min-width: 100px;
-  }
-
-  @media (max-width: 768px) {
-    .dashboard {
-      padding: 1.5rem;
-    }
-
-    .dashboard h2 {
-      font-size: 1.5rem;
-    }
-
-    .summary-grid {
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    }
-
-    .model-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-
-    .performance-bars {
-      margin-left: 0;
-      width: 100%;
-    }
-
-    .performance-item {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .progress-bar-chart {
-      max-width: 100%;
-    }
-
-    .ranking-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.75rem;
-    }
-
-    .rank-score {
-      width: 100%;
-      min-width: unset;
-    }
-  }
-
-  /* Text Length Metrics Styles */
+  /* ============================================================================
+   * STAT CARDS & TEXT LENGTH METRICS
+   * ============================================================================ */
   .length-overview {
     margin-top: 1rem;
   }
@@ -1351,6 +1288,9 @@
     color: #666;
   }
 
+  /* ============================================================================
+   * CONCISENESS METRICS
+   * ============================================================================ */
   .conciseness-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -1410,49 +1350,9 @@
     border-top: 1px solid #e9ecef;
   }
 
-  .length-bars {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-left: 1rem;
-  }
-
-  .length-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .length-label {
-    min-width: 120px;
-    font-size: 0.9rem;
-    color: #666;
-  }
-
-  .length-value {
-    min-width: 80px;
-    font-weight: 600;
-    color: #333;
-    font-size: 0.9rem;
-  }
-
-  .length-bar {
-    flex: 1;
-    height: 16px;
-    background-color: #e9ecef;
-    border-radius: 8px;
-    overflow: hidden;
-    max-width: 200px;
-  }
-
-  .length-fill {
-    height: 100%;
-    border-radius: 8px;
-    transition: width 0.3s ease;
-  }
-
-  /* Category Analysis Styles */
+  /* ============================================================================
+   * TOP PERFORMERS
+   * ============================================================================ */
   .top-performers-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -1512,6 +1412,9 @@
     font-size: 0.9rem;
   }
 
+  /* ============================================================================
+   * CATEGORY CHARTS
+   * ============================================================================ */
   .category-charts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -1595,36 +1498,123 @@
     font-weight: 500;
   }
 
+  /* ============================================================================
+   * RANKING TABLE
+   * ============================================================================ */
+  .ranking-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .ranking-row {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    gap: 1rem;
+  }
+
+  .rank-position {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #007bff;
+    min-width: 40px;
+  }
+
+  .rank-model {
+    flex: 1;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .rank-score {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 200px;
+  }
+
+  .score-bar {
+    flex: 1;
+    height: 16px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.3s ease;
+  }
+
+  .score-text {
+    font-weight: 600;
+    color: #333;
+    min-width: 70px;
+  }
+
+  .rank-count {
+    font-size: 0.9rem;
+    color: #666;
+    min-width: 100px;
+  }
+
+  /* ============================================================================
+   * RESPONSIVE DESIGN
+   * ============================================================================ */
   @media (max-width: 768px) {
-    .overview-stats {
+    .dashboard {
+      padding: 1.5rem;
+    }
+
+    .dashboard h2 {
+      font-size: 1.5rem;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .overview-stats,
+    .conciseness-grid,
+    .top-performers-grid,
+    .category-charts {
       grid-template-columns: 1fr;
     }
 
-    .conciseness-grid {
-      grid-template-columns: 1fr;
+    .model-row,
+    .ranking-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
     }
 
+    .performance-bars,
     .length-bars {
       margin-left: 0;
+      width: 100%;
     }
 
+    .performance-item,
     .length-item {
       flex-direction: column;
       align-items: flex-start;
       gap: 0.5rem;
     }
 
+    .progress-bar-chart,
     .length-bar {
       max-width: 100%;
       width: 100%;
     }
 
-    .top-performers-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .category-charts {
-      grid-template-columns: 1fr;
+    .rank-score {
+      width: 100%;
+      min-width: unset;
     }
 
     .category-bar {

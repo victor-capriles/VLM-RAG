@@ -1093,6 +1093,9 @@
 />
 
 <style>
+  /* ============================================================================
+   * BASE ROW LAYOUT
+   * ============================================================================ */
   .result-row {
     border-bottom: 1px solid #e9ecef;
   }
@@ -1111,52 +1114,9 @@
     border-right: none;
   }
 
-  /* Column widths - Fixed layout */
-  .col-id {
-    width: 10%; /* Increased from 8% to accommodate details content */
-    min-width: 120px; /* Increased from 60px */
-    box-sizing: border-box;
-  }
-
-  .col-details {
-    width: 15%;
-    min-width: 180px;
-    box-sizing: border-box;
-  }
-
-  .col-context-images {
-    width: 20%; /* Reduced from 23% */
-    min-width: 220px; /* Reduced from 240px */
-    box-sizing: border-box;
-  }
-
-  .col-with-context {
-    width: 22%; /* Reduced from 25% */
-    min-width: 230px; /* Reduced from 250px */
-    box-sizing: border-box;
-  }
-
-  .col-without-context {
-    width: 22%; /* Reduced from 25% */
-    min-width: 230px; /* Reduced from 250px */
-    box-sizing: border-box;
-  }
-
-  .col-score {
-    width: 6%;
-    min-width: 50px;
-    text-align: center;
-    box-sizing: border-box;
-  }
-
-  .col-context-impact {
-    width: 8%;
-    min-width: 70px;
-    text-align: center;
-    box-sizing: border-box;
-  }
-
-  /* Prevent layout shift and ensure proper wrapping */
+  /* ============================================================================
+   * COLUMN WIDTHS & LAYOUT
+   * ============================================================================ */
   .col-id,
   .col-details,
   .col-context-images,
@@ -1172,28 +1132,53 @@
     overflow: hidden;
     position: relative;
     max-width: 0; /* Forces cells to respect percentage widths */
+    box-sizing: border-box;
   }
 
-  .expand-text-btn:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
+  .col-id {
+    width: 10%;
+    min-width: 120px;
   }
 
-  .expand-text-btn:focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
+  .col-details {
+    width: 15%;
+    min-width: 180px;
   }
 
-  /* ID Column */
+  .col-context-images {
+    width: 20%;
+    min-width: 220px;
+  }
+
+  .col-with-context,
+  .col-without-context {
+    width: 22%;
+    min-width: 230px;
+  }
+
+  .col-score {
+    width: 6%;
+    min-width: 50px;
+    text-align: center;
+  }
+
+  .col-context-impact {
+    width: 8%;
+    min-width: 70px;
+    text-align: center;
+  }
+
+  /* ============================================================================
+   * ID COLUMN CONTENT
+   * ============================================================================ */
   .id-content {
-    text-align: left; /* Changed from center to left */
+    text-align: left;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    align-items: flex-start; /* Changed from center to flex-start */
+    align-items: flex-start;
   }
 
-  /* ID Header with validation ID and image */
   .id-header {
     display: flex;
     align-items: center;
@@ -1211,7 +1196,6 @@
     flex-shrink: 0;
   }
 
-  /* Image Container in ID Column */
   .id-header .image-container {
     display: flex;
     justify-content: flex-start;
@@ -1220,25 +1204,25 @@
     width: 100%;
   }
 
-  /* Full width for image button in ID column */
   .id-header .image-button {
     width: 100%;
   }
 
   .id-content .query-image {
-    width: 100%; /* Keep full width on mobile */
-    max-width: none; /* Remove max-width constraint */
-    height: auto; /* Maintain aspect ratio */
-    max-height: 150px; /* Slightly smaller max height for mobile */
+    width: 100%;
+    max-width: none;
+    height: auto;
+    max-height: 150px;
   }
 
-  /* Details content in ID column */
   .id-content .details-content {
     width: 100%;
     font-size: 0.85rem;
   }
 
-  /* Details Column */
+  /* ============================================================================
+   * DETAILS CONTENT
+   * ============================================================================ */
   .details-content {
     font-size: 0.85rem;
   }
@@ -1271,7 +1255,6 @@
     max-width: 100%;
   }
 
-  /* Model info in details */
   .model-info {
     display: flex;
     flex-direction: column;
@@ -1293,7 +1276,9 @@
     align-self: flex-start;
   }
 
-  /* Image Column */
+  /* ============================================================================
+   * IMAGE COMPONENTS
+   * ============================================================================ */
   .image-container {
     display: flex;
     justify-content: center;
@@ -1301,7 +1286,8 @@
     margin-bottom: 1rem;
   }
 
-  .image-button {
+  .image-button,
+  .context-image-button {
     position: relative;
     background: none;
     border: none;
@@ -1309,14 +1295,24 @@
     cursor: pointer;
     border-radius: 4px;
     overflow: hidden;
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
 
-  .image-button:hover {
+  .image-button:hover,
+  .context-image-button:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .context-image-button {
+    border-radius: 3px;
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+  }
+
+  .context-image-button:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
   .query-image {
@@ -1327,6 +1323,15 @@
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     object-fit: cover;
+    display: block;
+  }
+
+  .similar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 3px;
+    border: 1px solid #e9ecef;
     display: block;
   }
 
@@ -1366,44 +1371,9 @@
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
   }
 
-  /* Score Column */
-  .score-display {
-    text-align: center;
-    font-family: monospace;
-  }
-
-  .score-value {
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .score-label {
-    font-size: 0.7rem;
-    color: #666;
-    margin-top: 0.1rem;
-  }
-
-  /* Context Impact Column */
-  .impact-display {
-    text-align: center;
-    font-family: monospace;
-  }
-
-  .impact-score {
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1;
-  }
-
-  .impact-label {
-    font-size: 0.65rem;
-    color: #666;
-    margin-top: 0.1rem;
-    line-height: 1.2;
-  }
-
-  /* Context Images */
+  /* ============================================================================
+   * CONTEXT IMAGES
+   * ============================================================================ */
   .context-images {
     width: 100%;
   }
@@ -1421,36 +1391,6 @@
     background: #f8f9fa;
     border-radius: 6px;
     border: 1px solid #e9ecef;
-  }
-
-  .context-image-button {
-    position: relative;
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    border-radius: 3px;
-    overflow: hidden;
-    flex-shrink: 0;
-    width: 60px;
-    height: 60px;
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
-  }
-
-  .context-image-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .similar-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 3px;
-    border: 1px solid #e9ecef;
-    display: block;
   }
 
   .similar-image-info {
@@ -1521,7 +1461,8 @@
     margin-top: 0.5rem;
   }
 
-  .no-context {
+  .no-context,
+  .no-response {
     text-align: center;
     color: #999;
     font-style: italic;
@@ -1529,7 +1470,9 @@
     padding: 1rem 0;
   }
 
-  /* Response Columns */
+  /* ============================================================================
+   * RESPONSE COLUMNS
+   * ============================================================================ */
   .response-content {
     width: 100%;
   }
@@ -1547,6 +1490,30 @@
     gap: 0.75rem;
   }
 
+  .context-indicator {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .context-indicator.with-context {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .context-indicator.without-context {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  /* ============================================================================
+   * EVALUATION BUTTONS
+   * ============================================================================ */
   .evaluation-buttons {
     display: flex;
     gap: 0.2rem;
@@ -1613,58 +1580,9 @@
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
   }
 
-  .context-indicator {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.5rem;
-    border-radius: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .context-indicator.with-context {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-
-  .context-indicator.without-context {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
-
-  .processing-time {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.25rem;
-    min-width: 80px;
-  }
-
-  .time-text {
-    font-size: 0.75rem;
-    color: #666;
-    font-family: monospace;
-    white-space: nowrap;
-  }
-
-  .time-bar-container {
-    width: 60px;
-    height: 8px;
-    background: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid #dee2e6;
-  }
-
-  .time-bar {
-    height: 100%;
-    border-radius: 3px;
-    transition: all 0.3s ease;
-    min-width: 2px;
-  }
-
+  /* ============================================================================
+   * TEXT CONTENT & EXPANSION
+   * ============================================================================ */
   .response-text-container {
     position: relative;
   }
@@ -1682,7 +1600,54 @@
     overflow: hidden;
   }
 
-  /* Keyword highlighting */
+  .expand-text-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+    color: #007bff;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    white-space: nowrap;
+  }
+
+  .expand-text-btn:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+    color: #0056b3;
+    text-decoration: underline;
+  }
+
+  .expand-text-btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+
+  .expand-text-icon {
+    transition: transform 0.2s ease;
+  }
+
+  .expand-text-icon.rotated {
+    transform: rotate(180deg);
+  }
+
+  .response-error {
+    font-size: 0.85rem;
+    color: #dc3545;
+    background: #f8d7da;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+  }
+
+  /* ============================================================================
+   * KEYWORD HIGHLIGHTING
+   * ============================================================================ */
   :global(.keyword-highlight) {
     background: linear-gradient(120deg, #a2e6fa 0%, #f9f06b 100%);
     background-size: 100% 100%;
@@ -1734,14 +1699,44 @@
     font-weight: 600;
   }
 
-  /* Conciseness indicator styles */
+  /* ============================================================================
+   * SCORE & IMPACT COLUMNS
+   * ============================================================================ */
+  .score-display,
+  .impact-display {
+    text-align: center;
+    font-family: monospace;
+  }
+
+  .score-value,
+  .impact-score {
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 0.7rem;
+    color: #666;
+    margin-top: 0.1rem;
+  }
+
+  .impact-label {
+    font-size: 0.65rem;
+    color: #666;
+    margin-top: 0.1rem;
+    line-height: 1.2;
+  }
+
+  /* ============================================================================
+   * CONCISENESS & THERMOMETER
+   * ============================================================================ */
   .conciseness-info {
     background: #f8f9fa;
     padding: 0.5rem;
     border-radius: 4px;
     margin-bottom: 0.5rem;
     border: 1px solid #e9ecef;
-    /* Ensure the thermometer container has sufficient space */
     min-height: 60px;
     overflow: visible;
   }
@@ -1750,15 +1745,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    /* CSS custom property for thermometer margin - ensures consistency */
     --thermometer-margin: 8px;
-  }
-
-  .thermometer-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    margin-top: 0.25rem;
   }
 
   .conciseness-label {
@@ -1769,135 +1756,17 @@
     letter-spacing: 0.5px;
   }
 
-  .conciseness-badge {
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    cursor: help;
-  }
-
   .word-count {
     font-size: 0.7rem;
     color: #666;
     font-family: monospace;
   }
 
-  /* Length Thermometer Styles */
   .length-thermometer {
     width: 100%;
     min-width: 120px;
     display: flex;
     flex-direction: column;
-  }
-
-  /* Responsive thermometer adjustments */
-  @media (max-width: 1200px) {
-    .thermometer-section {
-      --thermometer-margin: 6px; /* Reduce margin on smaller screens */
-    }
-    
-    .length-thermometer {
-      min-width: 100px;
-    }
-    
-    .marker-label {
-      font-size: 0.55rem;
-    }
-
-    .label-value {
-      font-size: 0.6rem;
-    }
-
-    .label-text {
-      font-size: 0.5rem;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .thermometer-section {
-      --thermometer-margin: 4px; /* Further reduce margin on mobile */
-    }
-    
-    .length-thermometer {
-      min-width: 80px;
-    }
-    
-    .thermometer-bar {
-      height: 10px; /* Slightly smaller on mobile */
-    }
-    
-    .marker-label {
-      font-size: 0.5rem;
-      line-height: 1.0;
-    }
-    
-    .thermometer-markers {
-      height: 28px; /* Reduced height for mobile */
-    }
-    
-    .marker-line {
-      height: 6px; /* Smaller marker lines on mobile */
-    }
-
-    .thermometer-labels {
-      height: 28px; /* Match thermometer-markers height */
-    }
-
-    .label-value {
-      font-size: 0.55rem;
-    }
-
-    .label-text {
-      font-size: 0.45rem;
-    }
-  }
-
-  /* Extra small screens - simplify thermometer */
-  @media (max-width: 480px) {
-    .thermometer-section {
-      --thermometer-margin: 2px; /* Minimal margin on very small screens */
-    }
-    
-    .length-thermometer {
-      min-width: 60px;
-    }
-    
-    .thermometer-bar {
-      height: 8px; /* Even smaller on very small screens */
-    }
-    
-    .marker-label {
-      font-size: 0.45rem;
-      line-height: 0.9;
-    }
-    
-    .thermometer-markers {
-      height: 24px; /* Reduced height for very small screens */
-    }
-    
-    .marker-line {
-      height: 4px; /* Minimal marker lines */
-    }
-
-    .thermometer-labels {
-      height: 24px; /* Match thermometer-markers height */
-    }
-
-    .label-value {
-      font-size: 0.5rem;
-    }
-
-    .label-text {
-      font-size: 0.4rem;
-    }
-    
-    /* Hide some markers on very small screens to prevent overcrowding */
-    .conciseness-info {
-      min-height: 50px;
-    }
   }
 
   .thermometer-bar {
@@ -1909,7 +1778,6 @@
     position: relative;
     cursor: help;
     margin: 0 var(--thermometer-margin);
-    /* Ensure minimum viable width even with margins */
     min-width: calc(60px - 2 * var(--thermometer-margin));
   }
 
@@ -1966,8 +1834,8 @@
     height: 100%;
     border-radius: 5px;
     transition: width 0.3s ease, background-color 0.3s ease;
-    background-color: #28a745; /* Fallback color in case dynamic color fails */
-    min-width: 2px; /* Ensure visibility even with small percentages */
+    background-color: #28a745;
+    min-width: 2px;
   }
 
   .thermometer-markings {
@@ -2012,82 +1880,10 @@
     z-index: 10;
   }
 
-  .thermometer-markers {
-    margin-top: 2px;
-    height: 32px; /* Space for markers and labels */
-    position: relative;
-    /* Match the thermometer bar margin to ensure consistent coordinate system */
-    margin-left: var(--thermometer-margin);
-    margin-right: var(--thermometer-margin);
-  }
-
-  .marker-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
-
-  .marker {
-    position: absolute;
-    top: 0;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 5;
-  }
-
-  .marker-line {
-    width: 2px;
-    height: 8px;
-    background: #495057;
-    border-radius: 1px;
-  }
-
-  .marker-label {
-    font-size: 0.6rem;
-    color: #666;
-    font-family: monospace;
-    text-align: center;
-    line-height: 1.1;
-    margin-top: 2px;
-    white-space: nowrap;
-    font-weight: 500;
-  }
-
-  .min-marker .marker-line {
-    background: #6c757d;
-  }
-
-  .avg-marker .marker-line {
-    background: #007bff;
-    box-shadow: 0 0 3px rgba(0, 123, 255, 0.4);
-  }
-
-  .max-marker .marker-line {
-    background: #6c757d;
-  }
-
-  /* Robust positioning for markers - no manual overrides needed */
-  .min-marker {
-    /* Positioning handled programmatically via inline styles */
-  }
-
-  .max-marker {
-    /* Positioning handled programmatically via inline styles */
-  }
-
-  /* Average marker uses standard percentage positioning - no manual adjustment needed */
-  .avg-marker {
-    /* No special positioning needed - uses calculated avgPercentage */
-  }
-
-  /* Thermometer Labels */
   .thermometer-labels {
     margin-top: 4px;
     height: 32px;
     position: relative;
-    /* Match the thermometer bar margin to ensure consistent coordinate system */
     margin-left: var(--thermometer-margin);
     margin-right: var(--thermometer-margin);
   }
@@ -2147,53 +1943,9 @@
     color: #007bff;
   }
 
-  .expand-text-btn {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 3px;
-    padding: 0.2rem 0.4rem;
-    font-size: 0.7rem;
-    color: #007bff;
-    cursor: pointer;
-    margin-bottom: 0.5rem;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    white-space: nowrap;
-  }
-
-  .expand-text-btn:hover {
-    color: #0056b3;
-    text-decoration: underline;
-  }
-
-  .expand-text-icon {
-    transition: transform 0.2s ease;
-  }
-
-  .expand-text-icon.rotated {
-    transform: rotate(180deg);
-  }
-
-  .response-error {
-    font-size: 0.85rem;
-    color: #dc3545;
-    background: #f8d7da;
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #f5c6cb;
-  }
-
-  .no-response {
-    text-align: center;
-    color: #999;
-    font-style: italic;
-    font-size: 0.8rem;
-    padding: 1rem 0;
-  }
-
-  /* Responsive breakpoints */
+  /* ============================================================================
+   * RESPONSIVE DESIGN
+   * ============================================================================ */
   @media (max-width: 1400px) {
     .col-id {
       min-width: 200px;
@@ -2207,6 +1959,22 @@
   }
 
   @media (max-width: 1200px) {
+    .thermometer-section {
+      --thermometer-margin: 6px;
+    }
+    
+    .length-thermometer {
+      min-width: 100px;
+    }
+    
+    .label-value {
+      font-size: 0.6rem;
+    }
+
+    .label-text {
+      font-size: 0.5rem;
+    }
+
     .col-id {
       min-width: 180px;
     }
@@ -2222,14 +1990,37 @@
     }
   }
 
-  /* Mobile Responsiveness */
   @media (max-width: 768px) {
     .result-row td {
       padding: 0.75rem 0.5rem;
     }
 
+    .thermometer-section {
+      --thermometer-margin: 4px;
+    }
+    
+    .length-thermometer {
+      min-width: 80px;
+    }
+    
+    .thermometer-bar {
+      height: 10px;
+    }
+    
+    .thermometer-labels {
+      height: 28px;
+    }
+
+    .label-value {
+      font-size: 0.55rem;
+    }
+
+    .label-text {
+      font-size: 0.45rem;
+    }
+
     .col-id {
-      min-width: 160px; /* Increased to accommodate combined content */
+      min-width: 160px;
     }
 
     .col-details {
@@ -2251,10 +2042,10 @@
     }
 
     .id-content .query-image {
-      width: 100%; /* Take full column width */
-      max-width: none; /* Remove max-width constraint */
-      height: auto; /* Maintain aspect ratio */
-      max-height: 200px; /* Set reasonable max height */
+      width: 100%;
+      max-width: none;
+      height: auto;
+      max-height: 200px;
       border-radius: 4px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       object-fit: cover;
@@ -2262,10 +2053,10 @@
     }
 
     .query-image {
-      width: 100%; /* Keep full width on mobile */
-      max-width: none; /* Remove max-width constraint */
-      height: auto; /* Maintain aspect ratio */
-      max-height: 150px; /* Slightly smaller max height for mobile */
+      width: 100%;
+      max-width: none;
+      height: auto;
+      max-height: 150px;
     }
 
     .similar-image-item {
@@ -2329,16 +2120,13 @@
       font-size: 0.7rem;
     }
 
-    .score-value {
+    .score-value,
+    .impact-score {
       font-size: 1rem;
     }
 
     .score-label {
       font-size: 0.65rem;
-    }
-
-    .impact-score {
-      font-size: 1rem;
     }
 
     .impact-label {
@@ -2358,19 +2146,6 @@
       padding: 0.15rem 0.3rem;
     }
 
-    .processing-time {
-      min-width: 70px;
-    }
-
-    .time-text {
-      font-size: 0.7rem;
-    }
-
-    .time-bar-container {
-      width: 50px;
-      height: 6px;
-    }
-
     .header-right {
       gap: 0.5rem;
     }
@@ -2384,6 +2159,36 @@
       height: 22px;
       padding: 0.15rem;
       font-size: 0.65rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .thermometer-section {
+      --thermometer-margin: 2px;
+    }
+    
+    .length-thermometer {
+      min-width: 60px;
+    }
+    
+    .thermometer-bar {
+      height: 8px;
+    }
+    
+    .thermometer-labels {
+      height: 24px;
+    }
+
+    .label-value {
+      font-size: 0.5rem;
+    }
+
+    .label-text {
+      font-size: 0.4rem;
+    }
+    
+    .conciseness-info {
+      min-height: 50px;
     }
   }
 </style>
