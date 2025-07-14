@@ -7,6 +7,7 @@ import json
 import time
 from tqdm import tqdm
 from datetime import datetime
+import importlib
 
 from vector_db import SimpleVectorDB
 
@@ -43,8 +44,8 @@ class ValidationEvaluator:
         chroma_path = self.base_path / "notebooks" / "data" / "chroma_db"
         self.db = SimpleVectorDB(db_path=str(chroma_path))
         
-        self.train_collection_name = f"viswiz_train_{self.embedding_provider}_cosine"
-        self.validation_collection_name = f"viswiz_validation_{self.embedding_provider}_cosine"
+        ## Change later to adapt based on embeddings provider
+        self.train_collection_name = f"vizwiz_500_sample_cosine"
         
         print(f"Using embedding provider: {self.embedding_provider.upper()}")
         print(f"Train collection: {self.train_collection_name}")
@@ -56,7 +57,7 @@ class ValidationEvaluator:
         self.validation_ids = [str(item['id']) for item in self.validation_embeddings.get("items", [])]
         
         sys.path.append(os.path.dirname(__file__))
-        import importlib
+        
         visual_interpreter = importlib.import_module("visual_interpreter")
         self.models = visual_interpreter.create_models(MODEL_CONFIGS)
         
@@ -132,10 +133,9 @@ class ValidationEvaluator:
             prompt = "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\nHere is the first picture that you must give a description of."
             
             if with_context:
+                
                 similar_images_result = self._get_similar_images(validation_id)
                 if similar_images_result and similar_images_result["similar_images"]:
-                    # --- START OF CORRECTION ---
-                    # Rebuild the similar_images list with all required metadata fields.
                     saved_similar_images = []
                     for res in similar_images_result["similar_images"]:
                         sim_meta = res.get("metadata", {})
@@ -147,7 +147,6 @@ class ValidationEvaluator:
                             "crowd_majority": sim_meta.get("crowd_majority", "")
                         })
                     result["similar_images"] = saved_similar_images
-                    # --- END OF CORRECTION ---
                     
                     prompt = self._build_context_prompt(similar_images_result)
             

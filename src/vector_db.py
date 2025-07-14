@@ -197,11 +197,10 @@ class SimpleVectorDB:
         try:
             # Use specified collection or current collection
             if collection_name:
-                collection = self.create_collection(collection_name)
-            elif self.current_collection:
-                collection = self.current_collection
-            else:
-                raise ValueError("No collection specified and no current collection set. Use use_collection() first.")
+                if collection_name in [col.name for col in self.client.list_collections()]:
+                    collection = self.client.get_collection(collection_name)
+                else:
+                    raise ValueError(f"Collection '{collection_name}' does not exist")
             
             # normalize query embedding for COSINE similarity
             norm_query = (np.array(query_embedding) / np.linalg.norm(query_embedding)).tolist()
