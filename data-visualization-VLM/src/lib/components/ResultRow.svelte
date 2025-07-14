@@ -1,6 +1,10 @@
 <script lang="ts">
   import ImageModal from "./ImageModal.svelte";
 
+  // ============================================================================
+  // TYPES & INTERFACES
+  // ============================================================================
+  
   interface RawResult {
     validation_id: string;
     model_name: string;
@@ -34,10 +38,21 @@
     title?: string;
   }
 
-  // Props
+  type EvaluationType =
+    | "directly_answered"
+    | "inferable"
+    | "missing_incorrect"
+    | "hallucination"
+    | null;
+
+  // ============================================================================
+  // PROPS
+  // ============================================================================
+  
   let {
     result,
     allResults,
+    fullDataset = null,
     columnVisibility = {
       id: true,
       contextImages: true,
@@ -50,6 +65,7 @@
   }: { 
     result: GroupedResult; 
     allResults: GroupedResult[];
+    fullDataset?: GroupedResult[] | null;
     columnVisibility?: {
       id: boolean;
       contextImages: boolean;
@@ -61,27 +77,34 @@
     rowNumber: number;
   } = $props();
 
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+  
   // Modal state
   let isModalOpen = $state(false);
   let modalImages: ImageData[] = $state([]);
   let currentImageIndex = $state(0);
 
-  // Text expansion state - default to expanded (unfolded)
+  // Text expansion state
   let isWithContextExpanded = $state(true);
   let isWithoutContextExpanded = $state(true);
 
-  // Evaluation types
-  type EvaluationType =
-    | "directly_answered"
-    | "inferable"
-    | "missing_incorrect"
-    | "hallucination"
-    | null;
+  // Storage update trigger for reactivity
+  let storageUpdateTrigger = $state(0);
 
-  // Evaluation state - read directly from sessionStorage each time
+  // Listen for storage changes
+  if (typeof window !== "undefined") {
+    window.addEventListener("storage", () => storageUpdateTrigger++);
+    window.addEventListener("evaluationsCleared", () => storageUpdateTrigger++);
+  }
+
+  // ============================================================================
+  // EVALUATION FUNCTIONS
+  // ============================================================================
+  
   function getStoredEvaluations(): Record<string, EvaluationType> {
     if (typeof window === "undefined") return {};
-
     try {
       const stored = sessionStorage.getItem("llm-evaluations");
       return stored ? JSON.parse(stored) : {};
@@ -91,10 +114,8 @@
     }
   }
 
-  // Save evaluations to sessionStorage
   function saveEvaluations(evaluations: Record<string, EvaluationType>) {
     if (typeof window === "undefined") return;
-
     try {
       sessionStorage.setItem("llm-evaluations", JSON.stringify(evaluations));
     } catch (e) {
@@ -102,166 +123,74 @@
     }
   }
 
-  // Listen for storage changes from other components/tabs
-  let storageUpdateTrigger = $state(0);
-
-  if (typeof window !== "undefined") {
-    // Listen for storage events (when storage changes from other tabs/components)
-    window.addEventListener("storage", () => {
-      storageUpdateTrigger++;
-    });
-
-    // Also listen for custom events from within the same tab
-    window.addEventListener("evaluationsCleared", () => {
-      storageUpdateTrigger++;
-    });
-  }
-
-  // Generate unique key for each response
   function getResponseKey(withContext: boolean): string {
     return `${result.validation_id}-${result.model_name}-${result.embedding_provider}-${withContext ? "with" : "without"}`;
   }
 
-  // Set evaluation for a response
   function setEvaluation(withContext: boolean, evaluation: EvaluationType) {
     const evaluations = getStoredEvaluations();
     const key = getResponseKey(withContext);
 
     if (evaluations[key] === evaluation) {
-      // If clicking the same evaluation, remove it
-      evaluations[key] = null;
       delete evaluations[key];
     } else {
       evaluations[key] = evaluation;
     }
 
-    // Save back to sessionStorage
     saveEvaluations(evaluations);
-
-    // Trigger reactivity update
     storageUpdateTrigger++;
 
-    // Dispatch custom event to notify other components
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("evaluationChanged"));
     }
   }
 
-  // Get current evaluation for a response (reactive)
   function getEvaluation(withContext: boolean): EvaluationType {
-    // This will trigger reactivity when storageUpdateTrigger changes
-    storageUpdateTrigger;
-
+    storageUpdateTrigger; // Trigger reactivity
     const evaluations = getStoredEvaluations();
     const key = getResponseKey(withContext);
     return evaluations[key] || null;
   }
 
-  // Get evaluation button class
-  function getEvaluationClass(
-    withContext: boolean,
-    type: EvaluationType
-  ): string {
-    const current = getEvaluation(withContext);
-    return current === type ? "active" : "";
+  function getEvaluationClass(withContext: boolean, type: EvaluationType): string {
+    return getEvaluation(withContext) === type ? "active" : "";
   }
 
-  // Calculate conciseness score for a response
-  function getConcisenessPenalty(response: string): number {
-    if (!response) return 0;
-
-    const wordCount = response.trim().split(/\s+/).length;
-
-    // Ideal range: 10-50 words (no penalty)
-    if (wordCount >= 10 && wordCount <= 50) {
-      return 0; // No penalty
-    }
-
-    // Short responses (less than 10 words) - small penalty
-    if (wordCount < 10) {
-      return 0.1; // Small penalty for being too brief
-    }
-
-    // Long responses - increasing penalty
-    if (wordCount <= 100) {
-      return 0.2; // Moderate penalty for moderate verbosity
-    } else if (wordCount <= 150) {
-      return 0.4; // Higher penalty for high verbosity
-    } else {
-      return 0.6; // Maximum penalty for excessive verbosity
+  function getNumericScore(evaluation: EvaluationType): number {
+    switch (evaluation) {
+      case "directly_answered": return 3;
+      case "inferable": return 2;
+      case "missing_incorrect": return 1;
+      case "hallucination": return 0;
+      default: return -1;
     }
   }
 
-  // Calculate correctness score (content accuracy only)
+  // ============================================================================
+  // SCORING FUNCTIONS
+  // ============================================================================
+  
   function getCorrectnessScore(): number {
-    const withEval = getEvaluation(true);
-    const withoutEval = getEvaluation(false);
-
-    const getNumericScore = (evaluation: EvaluationType): number => {
-      switch (evaluation) {
-        case "directly_answered":
-          return 3;
-        case "inferable":
-          return 2;
-        case "missing_incorrect":
-          return 1;
-        case "hallucination":
-          return 0;
-        default:
-          return -1; // No evaluation
-      }
-    };
-
-    const withScore = getNumericScore(withEval);
-    const withoutScore = getNumericScore(withoutEval);
-
-    // Calculate base correctness score
+    const withScore = getNumericScore(getEvaluation(true));
+    const withoutScore = getNumericScore(getEvaluation(false));
+    
     const totalScore = withScore + withoutScore;
-    const evaluatedCount =
-      (withScore >= 0 ? 1 : 0) + (withoutScore >= 0 ? 1 : 0);
-
-    if (evaluatedCount === 0) return -1; // No evaluations
-
-    const correctnessScore = totalScore / evaluatedCount;
-
-    // Return just the correctness score (3.0 scale)
-    return correctnessScore;
+    const evaluatedCount = (withScore >= 0 ? 1 : 0) + (withoutScore >= 0 ? 1 : 0);
+    
+    if (evaluatedCount === 0) return -1;
+    return totalScore / evaluatedCount;
   }
 
-  // Calculate context impact score
   function getContextImpactScore(): number | null {
-    const withEval = getEvaluation(true);
-    const withoutEval = getEvaluation(false);
-
-    const getNumericScore = (evaluation: EvaluationType): number | null => {
-      switch (evaluation) {
-        case "directly_answered":
-          return 3;
-        case "inferable":
-          return 2;
-        case "missing_incorrect":
-          return 1;
-        case "hallucination":
-          return 0;
-        default:
-          return null; // No evaluation
-      }
-    };
-
-    const withScore = getNumericScore(withEval);
-    const withoutScore = getNumericScore(withoutEval);
-
-    // If either evaluation is missing, return null for display purposes
-    if (withScore === null || withoutScore === null) return null;
-
-    // Calculate the impact: (with_context_score - without_context_score)
+    const withScore = getNumericScore(getEvaluation(true));
+    const withoutScore = getNumericScore(getEvaluation(false));
+    
+    if (withScore < 0 || withoutScore < 0) return null;
     return withScore - withoutScore;
   }
 
-  // Get context impact description
   function getContextImpactDescription(score: number | null): string {
     if (score === null) return "Not evaluated";
-
     if (score === 3) return "Major Improvement";
     if (score === 2) return "Significant Improvement";
     if (score === 1) return "Minor Improvement";
@@ -269,159 +198,128 @@
     if (score === -1) return "Minor Degradation";
     if (score === -2) return "Major Degradation";
     if (score === -3) return "Catastrophic Failure";
-
-    // Handle other cases
-    if (score > 0) return "Improvement";
-    return "Degradation";
+    return score > 0 ? "Improvement" : "Degradation";
   }
 
-  // Get context impact color
   function getContextImpactColor(score: number | null): string {
     if (score === null) return "#999";
-
-    if (score >= 2) return "#28a745"; // Green for major improvements
-    if (score === 1) return "#17a2b8"; // Blue for minor improvements
-    if (score === 0) return "#6c757d"; // Gray for no change
-    if (score === -1) return "#ffc107"; // Yellow for minor degradation
-    if (score <= -2) return "#dc3545"; // Red for major degradation
-
+    if (score >= 2) return "#28a745";
+    if (score === 1) return "#17a2b8";
+    if (score === 0) return "#6c757d";
+    if (score === -1) return "#ffc107";
+    if (score <= -2) return "#dc3545";
     return "#6c757d";
+  }
+
+  function formatScore(score: number): string {
+    return score < 0 ? "-" : score.toFixed(1);
+  }
+
+  function getScoreColor(score: number): string {
+    if (score < 0) return "#999";
+    if (score >= 2.5) return "#28a745";
+    if (score >= 2.0) return "#17a2b8";
+    if (score >= 1.0) return "#ffc107";
+    return "#dc3545";
   }
 
   // Reactive context impact score
   let contextImpactScore = $derived(getContextImpactScore());
 
-  // Format score for display
-  function formatScore(score: number): string {
-    if (score < 0) return "-";
-    return score.toFixed(1);
-  }
-
-  // Get score color
-  function getScoreColor(score: number): string {
-    if (score < 0) return "#999";
-    if (score >= 2.5) return "#28a745"; // Green for excellent scores (directly answered)
-    if (score >= 2.0) return "#17a2b8"; // Blue for good scores (inferable)
-    if (score >= 1.0) return "#ffc107"; // Yellow for medium scores (missing/incorrect)
-    return "#dc3545"; // Red for poor scores (hallucination)
-  }
-
-  function formatProcessingTime(time: number): string {
-    return `${time.toFixed(2)}s`;
-  }
-
-  // Calculate time statistics for visualization
-  function getTimeStats() {
-    const allTimes: number[] = [];
-
-    allResults.forEach((res) => {
-      if (res.with_context?.processing_time) {
-        allTimes.push(res.with_context.processing_time);
-      }
-      if (res.without_context?.processing_time) {
-        allTimes.push(res.without_context.processing_time);
-      }
-    });
-
-    if (allTimes.length === 0) return { min: 0, max: 10, avg: 5 };
-
-    const min = Math.min(...allTimes);
-    const max = Math.max(...allTimes);
-    const avg = allTimes.reduce((sum, time) => sum + time, 0) / allTimes.length;
-
-    return { min, max, avg };
-  }
-
-  // Get visual properties for processing time bar
-  function getTimeBarProps(time: number) {
-    const { min, max, avg } = getTimeStats();
-
-    // Calculate width as percentage (0-100%)
-    const width = Math.min(100, (time / max) * 100);
-
-    // Determine color based on time relative to average
-    let color = "#28a745"; // Green for fast
-    if (time > avg * 1.5) {
-      color = "#dc3545"; // Red for slow
-    } else if (time > avg * 1.2) {
-      color = "#ffc107"; // Yellow for medium
-    }
-
-    return { width, color };
-  }
-
-  function truncateText(text: string, maxLength: number = 150): string {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
-  }
-
-  function shouldShowExpandButton(
-    text: string,
-    maxLength: number = 150
-  ): boolean {
+  // ============================================================================
+  // TEXT PROCESSING FUNCTIONS
+  // ============================================================================
+  
+  function shouldShowExpandButton(text: string, maxLength: number = 150): boolean {
     return typeof text === "string" && text.length > maxLength;
   }
 
-  function getDisplayText(
-    text: string,
-    isExpanded: boolean,
-    maxLength: number = 150
-  ): string {
+  function getDisplayText(text: string, isExpanded: boolean, maxLength: number = 150): string {
     if (!text) return "";
     if (isExpanded || text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
   }
 
   function toggleWithContextExpansion() {
-    // Save current scroll position
     const currentScrollY = typeof window !== "undefined" ? window.scrollY : 0;
-
     isWithContextExpanded = !isWithContextExpanded;
-
-    // Restore scroll position after DOM update
     if (typeof window !== "undefined") {
       requestAnimationFrame(() => {
-        window.scrollTo({
-          top: currentScrollY,
-          behavior: "instant",
-        });
+        window.scrollTo({ top: currentScrollY, behavior: "instant" });
       });
     }
   }
 
   function toggleWithoutContextExpansion() {
-    // Save current scroll position
     const currentScrollY = typeof window !== "undefined" ? window.scrollY : 0;
-
     isWithoutContextExpanded = !isWithoutContextExpanded;
-
-    // Restore scroll position after DOM update
     if (typeof window !== "undefined") {
       requestAnimationFrame(() => {
-        window.scrollTo({
-          top: currentScrollY,
-          behavior: "instant",
-        });
+        window.scrollTo({ top: currentScrollY, behavior: "instant" });
       });
     }
   }
 
-  // Open modal with query image
+  // ============================================================================
+  // KEYWORD HIGHLIGHTING FUNCTIONS
+  // ============================================================================
+  
+  function extractKeywords(text: string): string[] {
+    if (!text) return [];
+
+    const stopWords = new Set([
+      "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", 
+      "with", "by", "is", "are", "was", "were", "be", "been", "have", "has", "had", 
+      "do", "does", "did", "will", "would", "could", "should", "may", "might", "can", 
+      "this", "that", "these", "those", "i", "you", "he", "she", "it", "we", "they", 
+      "me", "him", "her", "us", "them", "my", "your", "his", "her", "its", "our", 
+      "their", "what", "where", "when", "why", "how", "who", "which"
+    ]);
+
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, " ")
+      .split(/\s+/)
+      .filter((word) => word.length > 2 && !stopWords.has(word))
+      .slice(0, 10);
+  }
+
+  function getHighlightKeywords(): string[] {
+    return extractKeywords(result.crowd_majority);
+  }
+
+  function highlightKeywords(text: string): string {
+    if (!text) return "";
+    const keywords = getHighlightKeywords();
+    if (keywords.length === 0) return text;
+
+    let highlightedText = text;
+    keywords.forEach((keyword) => {
+      const regex = new RegExp(`\\b${keyword}\\b`, "gi");
+      highlightedText = highlightedText.replace(
+        regex,
+        `<mark class="keyword-highlight">$&</mark>`
+      );
+    });
+    return highlightedText;
+  }
+
+  // ============================================================================
+  // MODAL FUNCTIONS
+  // ============================================================================
+  
   function openQueryImageModal() {
-    modalImages = [
-      {
-        url: result.image_url,
-        alt: `Query image for validation ${result.validation_id}`,
-        title: `Query Image - ${result.real_question}`,
-      },
-    ];
+    modalImages = [{
+      url: result.image_url,
+      alt: `Query image for validation ${result.validation_id}`,
+      title: `Query Image - ${result.real_question}`,
+    }];
     currentImageIndex = 0;
     isModalOpen = true;
   }
 
-  // Open modal with specific context image
   function openContextImageModal(imageUrl: string, index: number) {
-    if (result.with_context && result.with_context.similar_images) {
+    if (result.with_context?.similar_images) {
       modalImages = result.with_context.similar_images.map((img, i) => ({
         url: img.image_url,
         alt: `Context image ${i + 1}`,
@@ -432,60 +330,62 @@
     }
   }
 
-  // Calculate distance color and properties for visual representation
+  // ============================================================================
+  // DISTANCE & SIMILARITY FUNCTIONS
+  // ============================================================================
+  
   function getDistanceProps(distance: number, allDistances: number[]) {
-    if (allDistances.length === 0)
+    if (allDistances.length === 0) {
       return { color: "#6c757d", label: "Unknown", rawDistance: distance };
+    }
 
-    // Color scale based on distance value (lower = better, so green for low values)
     let color: string;
     let label: string;
 
     if (distance <= 0.2) {
-      color = "#28a745"; // Green - very similar
+      color = "#28a745";
       label = "Very Similar";
     } else if (distance <= 0.5) {
-      color = "#007bff"; // Blue - similar
+      color = "#007bff";
       label = "Similar";
     } else if (distance <= 1.0) {
-      color = "#fd7e14"; // Orange - moderate similarity
+      color = "#fd7e14";
       label = "Moderate Similarity";
     } else {
-      color = "#dc3545"; // Red - poor similarity
+      color = "#dc3545";
       label = "Poor Similarity";
     }
 
-    return {
-      color,
-      label,
-      rawDistance: distance,
-    };
+    return { color, label, rawDistance: distance };
   }
 
-  // Get all distances for the current context images to calculate relative similarity
   function getAllDistances(): number[] {
     if (!result.with_context?.similar_images) return [];
     return result.with_context.similar_images.map((img) => img.distance);
   }
 
-  // Format distance for display
   function formatDistance(distance: number): string {
     return distance.toFixed(3);
   }
 
-  // Calculate global min/max from both context types and context-specific average
+  // ============================================================================
+  // LENGTH ANALYSIS FUNCTIONS
+  // ============================================================================
+  
   function getLengthStats(withContext: boolean): {
     min: number;
     max: number;
     average: number;
     quartiles: number[];
   } {
+    // Use fullDataset if available for consistent thermometer baseline across all filters,
+    // otherwise fall back to allResults (filtered data) for backward compatibility
+    const datasetToUse = fullDataset || allResults;
+    
     const contextSpecificLengths: number[] = [];
     const allLengths: number[] = [];
     
-    // Collect word counts for both context types to get global min/max
-    allResults.forEach((res) => {
-      // Collect from the specified context type for average calculation
+    datasetToUse.forEach((res) => {
       const contextResponse = withContext ? res.with_context?.llm_response : res.without_context?.llm_response;
       if (contextResponse) {
         const wordCount = contextResponse.trim().split(/\s+/).length;
@@ -493,7 +393,6 @@
         allLengths.push(wordCount);
       }
       
-      // Also collect from the other context type for global min/max
       const otherContextResponse = withContext ? res.without_context?.llm_response : res.with_context?.llm_response;
       if (otherContextResponse) {
         const wordCount = otherContextResponse.trim().split(/\s+/).length;
@@ -503,29 +402,24 @@
     
     if (allLengths.length === 0) return { min: 0, max: 100, average: 50, quartiles: [0, 25, 50, 75, 100] };
     
-    // Use global min/max from both context types
     const globalMin = Math.min(...allLengths);
     const globalMax = Math.max(...allLengths);
-    
-    // Use context-specific average
     const contextAverage = contextSpecificLengths.length > 0 
       ? contextSpecificLengths.reduce((sum, len) => sum + len, 0) / contextSpecificLengths.length
       : (globalMin + globalMax) / 2;
     
-    // Calculate quartiles based on global min-max range
     const range = globalMax - globalMin;
     const quartiles = [
-      globalMin,                                  // 0% (global min)
-      globalMin + range * 0.25,                  // 25%
-      globalMin + range * 0.5,                   // 50%
-      globalMin + range * 0.75,                  // 75%
-      globalMax                                  // 100% (global max)
+      globalMin,
+      globalMin + range * 0.25,
+      globalMin + range * 0.5,
+      globalMin + range * 0.75,
+      globalMax
     ];
     
     return { min: globalMin, max: globalMax, average: contextAverage, quartiles };
   }
 
-  // Create thermometer data for display
   function getThermometerData(wordCount: number, withContext: boolean): {
     percentage: number;
     color: string;
@@ -534,30 +428,25 @@
     const stats = getLengthStats(withContext);
     const range = stats.max - stats.min;
     const normalizedValue = range > 0 ? (wordCount - stats.min) / range : 0.5;
-    const percentage = Math.min(100, Math.max(5, normalizedValue * 100)); // Ensure minimum 5% visibility
+    const percentage = Math.min(100, Math.max(5, normalizedValue * 100));
     
-    // Calculate color based on position in min-max range
     let color: string;
     
-    // Handle edge case where range is 0 (all values are the same)
     if (range === 0) {
-      color = '#ffc107'; // Yellow for uniform data
+      color = '#ffc107';
     } else if (normalizedValue <= 0.33) {
-      // Green to yellow (0-33%)
       const localRatio = normalizedValue / 0.33;
       const r = Math.round(40 + (255 - 40) * localRatio);
       const g = Math.round(167 + (193 - 167) * localRatio);
       const b = Math.round(69 + (7 - 69) * localRatio);
       color = `rgb(${r}, ${g}, ${b})`;
     } else if (normalizedValue <= 0.66) {
-      // Yellow to orange (33-66%)
       const localRatio = (normalizedValue - 0.33) / 0.33;
-      const r = Math.round(255);
+      const r = 255;
       const g = Math.round(193 + (165 - 193) * localRatio);
-      const b = Math.round(7);
+      const b = 7;
       color = `rgb(${r}, ${g}, ${b})`;
     } else {
-      // Orange to red (66-100%)
       const localRatio = (normalizedValue - 0.66) / 0.34;
       const r = Math.round(255 + (220 - 255) * localRatio);
       const g = Math.round(165 + (53 - 165) * localRatio);
@@ -568,7 +457,6 @@
     return { percentage, color, stats };
   }
 
-  // Get conciseness info for display
   function getConcisenessMeter(response: string): {
     wordCount: number;
     penalty: number;
@@ -587,186 +475,43 @@
     }
 
     const wordCount = response.trim().split(/\s+/).length;
-    const penalty = getConcisenessPenalty(response);
+    
+    // Calculate penalty
+    let penalty = 0;
+    if (wordCount >= 10 && wordCount <= 50) {
+      penalty = 0;
+    } else if (wordCount < 10) {
+      penalty = 0.1;
+    } else if (wordCount <= 100) {
+      penalty = 0.2;
+    } else if (wordCount <= 150) {
+      penalty = 0.4;
+    } else {
+      penalty = 0.6;
+    }
 
     if (wordCount >= 10 && wordCount <= 50) {
-      return {
-        wordCount,
-        penalty,
-        level: "Ideal",
-        color: "#28a745",
-        description: "Perfect length",
-      };
+      return { wordCount, penalty, level: "Ideal", color: "#28a745", description: "Perfect length" };
     } else if (wordCount < 10) {
-      return {
-        wordCount,
-        penalty,
-        level: "Brief",
-        color: "#ffc107",
-        description: "May lack detail",
-      };
+      return { wordCount, penalty, level: "Brief", color: "#ffc107", description: "May lack detail" };
     } else if (wordCount <= 100) {
-      return {
-        wordCount,
-        penalty,
-        level: "Verbose",
-        color: "#fd7e14",
-        description: "Moderately long",
-      };
+      return { wordCount, penalty, level: "Verbose", color: "#fd7e14", description: "Moderately long" };
     } else if (wordCount <= 150) {
-      return {
-        wordCount,
-        penalty,
-        level: "Long",
-        color: "#dc3545",
-        description: "Quite verbose",
-      };
+      return { wordCount, penalty, level: "Long", color: "#dc3545", description: "Quite verbose" };
     } else {
-      return {
-        wordCount,
-        penalty,
-        level: "Excessive",
-        color: "#6f42c1",
-        description: "Too verbose",
-      };
+      return { wordCount, penalty, level: "Excessive", color: "#6f42c1", description: "Too verbose" };
     }
-  }
-
-  // Extract meaningful keywords from text
-  function extractKeywords(text: string): string[] {
-    if (!text) return [];
-
-    // Common stop words to exclude
-    const stopWords = new Set([
-      "the",
-      "a",
-      "an",
-      "and",
-      "or",
-      "but",
-      "in",
-      "on",
-      "at",
-      "to",
-      "for",
-      "of",
-      "with",
-      "by",
-      "is",
-      "are",
-      "was",
-      "were",
-      "be",
-      "been",
-      "have",
-      "has",
-      "had",
-      "do",
-      "does",
-      "did",
-      "will",
-      "would",
-      "could",
-      "should",
-      "may",
-      "might",
-      "can",
-      "this",
-      "that",
-      "these",
-      "those",
-      "i",
-      "you",
-      "he",
-      "she",
-      "it",
-      "we",
-      "they",
-      "me",
-      "him",
-      "her",
-      "us",
-      "them",
-      "my",
-      "your",
-      "his",
-      "her",
-      "its",
-      "our",
-      "their",
-      "what",
-      "where",
-      "when",
-      "why",
-      "how",
-      "who",
-      "which",
-    ]);
-
-    return text
-      .toLowerCase()
-      .replace(/[^\w\s]/g, " ") // Remove punctuation
-      .split(/\s+/) // Split by whitespace
-      .filter((word) => word.length > 2 && !stopWords.has(word)) // Filter meaningful words
-      .slice(0, 10); // Limit to prevent too much highlighting
-  }
-
-  // Get all keywords to highlight for this result
-  function getHighlightKeywords(): string[] {
-    // Only highlight keywords from the expected answer (crowd_majority)
-    return extractKeywords(result.crowd_majority);
-  }
-
-  // Calculate precise marker positioning based on thermometer data
-  function getMarkerPositioning(stats: { min: number; max: number; average: number }) {
-    const range = stats.max - stats.min;
-    
-    // Calculate average percentage position within the range
-    const avgPercentage = range > 0 ? ((stats.average - stats.min) / range) * 100 : 50;
-    
-    return {
-      // Min marker: position at left border of thermometer container
-      minStyle: `left: 0%; transform: translateX(0%);`,
-      
-      // Max marker: position at right border of thermometer container
-      maxStyle: `left: 100%; transform: translateX(-100%);`,
-      
-      // Average marker: center on calculated average position
-      avgStyle: `left: ${Math.min(100, Math.max(0, avgPercentage))}%; transform: translateX(-50%);`
-    };
-  }
-
-  // Highlight keywords in text
-  function highlightKeywords(text: string): string {
-    if (!text) return "";
-
-    const keywords = getHighlightKeywords();
-    if (keywords.length === 0) return text;
-
-    let highlightedText = text;
-
-    keywords.forEach((keyword) => {
-      const regex = new RegExp(`\\b${keyword}\\b`, "gi");
-      highlightedText = highlightedText.replace(
-        regex,
-        `<mark class="keyword-highlight">$&</mark>`
-      );
-    });
-
-    return highlightedText;
   }
 </script>
 
 <tr class="result-row">
-    <!-- ID with Query Image and Details -->
+  <!-- ID with Query Image and Details -->
   {#if columnVisibility.id}
     <td class="col-id">
       <div class="id-content">
         <div class="id-header">
           <span class="validation-id">ID #{result.validation_id}</span>
           <span class="validation-id">Row {rowNumber}</span>
-          <!-- Query Image -->
-          
         </div>
         <div class="image-container">
           <button
@@ -800,7 +545,6 @@
             </div>
           </button>
         </div>
-        <!-- Details content moved from details column -->
         <div class="details-content">
           <div class="detail-item">
             <strong>Model:</strong>
@@ -992,7 +736,6 @@
         )}
         {@const range = thermometerData.stats.max - thermometerData.stats.min}
         {@const avgPercentage = range > 0 ? Math.min(100, ((thermometerData.stats.average - thermometerData.stats.min) / range) * 100) : 50}
-        {@const markerPositioning = getMarkerPositioning(thermometerData.stats)}
         <div class="conciseness-info">
           <div class="thermometer-section">
             <div class="conciseness-label">
@@ -1185,7 +928,6 @@
         )}
         {@const range = thermometerData.stats.max - thermometerData.stats.min}
         {@const avgPercentage = range > 0 ? Math.min(100, ((thermometerData.stats.average - thermometerData.stats.min) / range) * 100) : 50}
-        {@const markerPositioning = getMarkerPositioning(thermometerData.stats)}
         <div class="conciseness-info">
           <div class="thermometer-section">
            

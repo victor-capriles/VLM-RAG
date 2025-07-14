@@ -1022,7 +1022,7 @@
       {#if activeTab === "results"}
         {#if rawResults.length > 0}
           <section class="results">
-            <ResultsTable data={visibleData()} {columnVisibility} />
+            <ResultsTable data={visibleData()} fullDataset={groupedData()} {columnVisibility} />
 
             <!-- Infinite Scroll Elements (only show when not showing all items) -->
             {#if !showAllItems}

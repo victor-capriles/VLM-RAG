@@ -31,6 +31,7 @@
   // Props
   let { 
     data = [],
+    fullDataset = null,
     columnVisibility = {
       id: true,
       contextImages: true,
@@ -41,6 +42,7 @@
     }
   }: { 
     data: GroupedResult[];
+    fullDataset?: GroupedResult[] | null;
     columnVisibility?: {
       id: boolean;
       contextImages: boolean;
@@ -317,7 +319,7 @@
     </thead>
     <tbody>
       {#each sortedData as result, index (result.id)}
-        <ResultRow {result} allResults={data} {columnVisibility} rowNumber={index + 1} />
+        <ResultRow {result} allResults={data} {fullDataset} {columnVisibility} rowNumber={index + 1} />
       {/each}
     </tbody>
   </table>
