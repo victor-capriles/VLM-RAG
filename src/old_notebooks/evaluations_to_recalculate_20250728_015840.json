@@ -1,0 +1,233 @@
+{
+  "timestamp": "2025-07-28T01:58:40.589254",
+  "summary": {
+    "total_evaluations_processed": 200,
+    "eliminated_validations": 16,
+    "needs_recalculation": 8,
+    "clean_evaluations": 176,
+    "kept_in_jsonl": 184
+  },
+  "eliminated_validations": [
+    {
+      "validation_id": "453",
+      "real_question": "Where can I buy this from?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "453",
+      "real_question": "Where can I buy this from?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "464",
+      "real_question": "Is this picture better?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "464",
+      "real_question": "Is this picture better?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "584",
+      "real_question": "Where is it made?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "584",
+      "real_question": "Where is it made?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "548",
+      "real_question": "Which ocean has the most hurricanes in the world?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "548",
+      "real_question": "Which ocean has the most hurricanes in the world?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "468",
+      "real_question": "where can i buy these big pens?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "468",
+      "real_question": "where can i buy these big pens?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "493",
+      "real_question": "I need some help using this application. ",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "493",
+      "real_question": "I need some help using this application. ",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "489",
+      "real_question": "Do you think my wife's decorating is any good or should I kick her out?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "489",
+      "real_question": "Do you think my wife's decorating is any good or should I kick her out?",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "456",
+      "real_question": "The way this guy was described to me was that when you turn it to the right there's a light that goes on in settings you can go normal and heavy duty then permanent press then towels. So I think\r\n",
+      "reason": "validation_id in discard list"
+    },
+    {
+      "validation_id": "456",
+      "real_question": "The way this guy was described to me was that when you turn it to the right there's a light that goes on in settings you can go normal and heavy duty then permanent press then towels. So I think\r\n",
+      "reason": "validation_id in discard list"
+    }
+  ],
+  "evaluations_needing_recalculation": [
+    {
+      "validation_id": "35",
+      "real_question": "What is this can? Thank you.",
+      "contaminated_train_ids": [
+        {
+          "id": "504",
+          "question": "This image does not show who the mail is for. It appears to be taken too close up on one part of the envelope without text.",
+          "distance": 0.43004536628723145
+        }
+      ],
+      "total_similar_images": 4,
+      "contaminated_count": 1,
+      "reason": "1 similar_images IDs are in train discard list"
+    },
+    {
+      "validation_id": "369",
+      "real_question": "What is the expiry date?",
+      "contaminated_train_ids": [
+        {
+          "id": "426",
+          "question": "I know but how long do I leave it in the oven for? Now how long is the cooking time?",
+          "distance": 0.4272502064704895
+        },
+        {
+          "id": "458",
+          "question": "Oh so do I leave it in for twelve months then do I?",
+          "distance": 0.4272502064704895
+        }
+      ],
+      "total_similar_images": 4,
+      "contaminated_count": 2,
+      "reason": "2 similar_images IDs are in train discard list"
+    },
+    {
+      "validation_id": "107",
+      "real_question": "What is this jar?",
+      "contaminated_train_ids": [
+        {
+          "id": "504",
+          "question": "This image does not show who the mail is for. It appears to be taken too close up on one part of the envelope without text.",
+          "distance": 0.5938450694084167
+        }
+      ],
+      "total_similar_images": 4,
+      "contaminated_count": 1,
+      "reason": "1 similar_images IDs are in train discard list"
+    },
+    {
+      "validation_id": "97",
+      "real_question": "can you please tell me what this is.",
+      "contaminated_train_ids": [
+        {
+          "id": "507",
+          "question": "Should I eat this for me tea?",
+          "distance": 0.519757866859436
+        }
+      ],
+      "total_similar_images": 4,
+      "contaminated_count": 1,
+      "reason": "1 similar_images IDs are in train discard list"
+    },
+    {
+      "validation_id": "496",
+      "real_question": "Where is my iPad?",
+      "contaminated_train_ids": [
+        {
+          "id": "289",
+          "question": "What color is...",
+          "distance": 0.5600560307502747
+        }
+      ],
+      "total_similar_images": 4,
+      "contaminated_count": 1,
+      "reason": "1 similar_images IDs are in train discard list"
+    },
+    {
+      "validation_id": "86",
+      "real_question": "What is this?",
+      "contaminated_train_ids": [
+        {
+          "id": "289",
+          "question": "What color is...",
+          "distance": 0.5933891534805298
+        }
+      ],
+      "total_similar_images": 4,
+      "contaminated_count": 1,
+      "reason": "1 similar_images IDs are in train discard list"
+    },
+    {
+      "validation_id": "72",
+      "real_question": "What is this?",
+      "contaminated_train_ids": [
+        {
+          "id": "504",
+          "question": "This image does not show who the mail is for. It appears to be taken too close up on one part of the envelope without text.",
+          "distance": 0.40910542011260986
+        }
+      ],
+      "total_similar_images": 4,
+      "contaminated_count": 1,
+      "reason": "1 similar_images IDs are in train discard list"
+    },
+    {
+      "validation_id": "170",
+      "real_question": "What color is this shirt?",
+      "contaminated_train_ids": [
+        {
+          "id": "598",
+          "question": "Where did this come from?",
+          "distance": 0.5309357643127441
+        }
+      ],
+      "total_similar_images": 4,
+      "contaminated_count": 1,
+      "reason": "1 similar_images IDs are in train discard list"
+    }
+  ],
+  "validation_discard_ids_used": [
+    "453",
+    "456",
+    "464",
+    "468",
+    "489",
+    "493",
+    "548",
+    "584"
+  ],
+  "train_discard_ids_used": [
+    "289",
+    "426",
+    "458",
+    "479",
+    "481",
+    "504",
+    "507",
+    "563",
+    "598"
+  ],
+  "note": "Evaluations needing recalculation are KEPT in the cleaned JSONL to preserve order. Only validations with discard IDs are eliminated."
+}

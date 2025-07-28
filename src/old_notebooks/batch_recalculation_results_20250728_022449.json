@@ -1,0 +1,368 @@
+{
+  "successful_results": {
+    "35": {
+      "validation_id": "35",
+      "model_name": "gemini-2.5-pro",
+      "with_context": true,
+      "embedding_provider": "cohere",
+      "top_k_similar": 4,
+      "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00007771.jpg",
+      "real_question": "What is this can? Thank you.",
+      "crowd_majority": "unanswerable",
+      "timestamp": "2025-07-28T02:22:51.080585",
+      "similar_images": [
+        {
+          "id": "91",
+          "distance": 0.41645222902297974,
+          "question": "What is in this can?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00010517.jpg",
+          "crowd_majority": "unanswerable"
+        },
+        {
+          "id": "381",
+          "distance": 0.44383299350738525,
+          "question": "What is the expiry date on this cream?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00009341.jpg",
+          "crowd_majority": "unanswerable"
+        },
+        {
+          "id": "236",
+          "distance": 0.4502459168434143,
+          "question": "Describe this tan to me.0",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00004733.jpg",
+          "crowd_majority": "soup"
+        },
+        {
+          "id": "38",
+          "distance": 0.4681239128112793,
+          "question": "What is this?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00015902.jpg",
+          "crowd_majority": "ritz bits"
+        }
+      ],
+      "prompt_used": "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\nWe have retrieved pictures with similar visual context. In these pictures, users asked the following questions:\n - What is in this can?\n - What is the expiry date on this cream?\n - Describe this tan to me.0\n - What is this?\n\nUse these questions as a guide for what kind of information is important to users.\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features.\nHere is the first picture that you must give a description of.",
+      "llm_response": "A can of food is lying on its side on a white kitchen counter. The label is black, and the words 'RANCH STYLE' are visible in yellow letters. Most of the other text on the label is too blurry to read. Also on the counter is a ceramic chef figurine, an empty plastic soda bottle, and a package of small sausages.",
+      "error": null,
+      "processing_time": 20.48125171661377
+    },
+    "369": {
+      "validation_id": "369",
+      "model_name": "gemini-2.5-pro",
+      "with_context": true,
+      "embedding_provider": "cohere",
+      "top_k_similar": 4,
+      "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00018091.jpg",
+      "real_question": "What is the expiry date?",
+      "crowd_majority": "2012",
+      "timestamp": "2025-07-28T02:23:11.562405",
+      "similar_images": [
+        {
+          "id": "46",
+          "distance": 0.4947177767753601,
+          "question": "What kind of coffee is this?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00013962.jpg",
+          "crowd_majority": "house blend"
+        },
+        {
+          "id": "376",
+          "distance": 0.5127789378166199,
+          "question": "What does it say?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00008513.jpg",
+          "crowd_majority": "unanswerable"
+        },
+        {
+          "id": "333",
+          "distance": 0.515174388885498,
+          "question": "Please tell me the sodium level.",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00010758.jpg",
+          "crowd_majority": "unsuitable"
+        },
+        {
+          "id": "444",
+          "distance": 0.5159843564033508,
+          "question": "What is the expiration date?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00009280.jpg",
+          "crowd_majority": "may 04 2013"
+        }
+      ],
+      "prompt_used": "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\nWe have retrieved pictures with similar visual context. In these pictures, users asked the following questions:\n - What kind of coffee is this?\n - What does it say?\n - Please tell me the sodium level.\n - What is the expiration date?\n\nUse these questions as a guide for what kind of information is important to users.\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features.\nHere is the first picture that you must give a description of.",
+      "llm_response": "A best before date stamped in black ink on a light brown, textured surface. The text reads:\nBEST BEFORE/MEILLEUR AVANT\n2012 DE14 01:35 REG. 4015K",
+      "error": null,
+      "processing_time": 13.22063398361206
+    },
+    "107": {
+      "validation_id": "107",
+      "model_name": "gemini-2.5-pro",
+      "with_context": true,
+      "embedding_provider": "cohere",
+      "top_k_similar": 4,
+      "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00009977.jpg",
+      "real_question": "What is this jar?",
+      "crowd_majority": "gherkins in sweet vinegar",
+      "timestamp": "2025-07-28T02:23:24.783643",
+      "similar_images": [
+        {
+          "id": "503",
+          "distance": 0.5710140466690063,
+          "question": "What is this season?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00014028.jpg",
+          "crowd_majority": "celery salt"
+        },
+        {
+          "id": "132",
+          "distance": 0.5899136066436768,
+          "question": "What kind of wine is this?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00001585.jpg",
+          "crowd_majority": "gewurz raminer"
+        },
+        {
+          "id": "89",
+          "distance": 0.5923833847045898,
+          "question": "again what is this tin? however i do think this system is really quite fantastic because it did tell one thing for me if you can't tell it's certainly not your fault.",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00010358.jpg",
+          "crowd_majority": "green beans"
+        },
+        {
+          "id": "372",
+          "distance": 0.5959141850471497,
+          "question": "when did this expire?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00007154.jpg",
+          "crowd_majority": "unanswerable"
+        }
+      ],
+      "prompt_used": "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\nWe have retrieved pictures with similar visual context. In these pictures, users asked the following questions:\n - What is this season?\n - What kind of wine is this?\n - again what is this tin? however i do think this system is really quite fantastic because it did tell one thing for me if you can't tell it's certainly not your fault.\n - when did this expire?\n\nUse these questions as a guide for what kind of information is important to users.\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features.\nHere is the first picture that you must give a description of.",
+      "llm_response": "A glass jar of Sainsbury's gherkins in sweet vinegar, sitting on a wooden surface. The jar is full of small, green, pickled cucumbers in a clear liquid. The label is light green and white. I cannot see an expiration date from this angle.",
+      "error": null,
+      "processing_time": 10.547431945800781
+    },
+    "97": {
+      "validation_id": "97",
+      "model_name": "gemini-2.5-pro",
+      "with_context": true,
+      "embedding_provider": "cohere",
+      "top_k_similar": 4,
+      "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00019182.jpg",
+      "real_question": "can you please tell me what this is.",
+      "crowd_majority": "grated parmesan",
+      "timestamp": "2025-07-28T02:23:35.331630",
+      "similar_images": [
+        {
+          "id": "344",
+          "distance": 0.4253934621810913,
+          "question": "What's the expiration date on this non dairy cheese?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00005218.jpg",
+          "crowd_majority": "unanswerable"
+        },
+        {
+          "id": "541",
+          "distance": 0.503138542175293,
+          "question": "Can you help me find the sodium content in this can, please?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00005975.jpg",
+          "crowd_majority": "no"
+        },
+        {
+          "id": "574",
+          "distance": 0.5336964726448059,
+          "question": "What is the nutritional value in these crackers?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00001781.jpg",
+          "crowd_majority": "unanswerable"
+        },
+        {
+          "id": "28",
+          "distance": 0.5339481830596924,
+          "question": "What is this?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00005659.jpg",
+          "crowd_majority": "tomato sauce"
+        }
+      ],
+      "prompt_used": "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\nWe have retrieved pictures with similar visual context. In these pictures, users asked the following questions:\n - What's the expiration date on this non dairy cheese?\n - Can you help me find the sodium content in this can, please?\n - What is the nutritional value in these crackers?\n - What is this?\n\nUse these questions as a guide for what kind of information is important to users.\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features.\nHere is the first picture that you must give a description of.",
+      "llm_response": "A green container of Food Club Grated Parmesan cheese. The label specifies it is \"Italian Style Cheese\" with \"No Fillers\". The net weight is 8 ounces (227g). The nutrition facts and expiration date are not visible in this picture.",
+      "error": null,
+      "processing_time": 13.696712970733643
+    },
+    "496": {
+      "validation_id": "496",
+      "model_name": "gemini-2.5-pro",
+      "with_context": true,
+      "embedding_provider": "cohere",
+      "top_k_similar": 4,
+      "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00013252.jpg",
+      "real_question": "Where is my iPad?",
+      "crowd_majority": "unanswerable",
+      "timestamp": "2025-07-28T02:23:49.028744",
+      "similar_images": [
+        {
+          "id": "546",
+          "distance": 0.4844018816947937,
+          "question": "What's the general theme of these books?  Thanks.",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00011055.jpg",
+          "crowd_majority": "unanswerable"
+        },
+        {
+          "id": "152",
+          "distance": 0.5613738298416138,
+          "question": "How many towels are on the shelf and what color are they?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00012508.jpg",
+          "crowd_majority": "5 blue"
+        },
+        {
+          "id": "167",
+          "distance": 0.5882908701896667,
+          "question": "How many video games are in these shelves?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00014438.jpg",
+          "crowd_majority": "58"
+        },
+        {
+          "id": "252",
+          "distance": 0.5896713733673096,
+          "question": "Please explain what you see in the photograph.",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00014459.jpg",
+          "crowd_majority": "room cabinets behind vertical blinds in front sunlit window"
+        }
+      ],
+      "prompt_used": "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\nWe have retrieved pictures with similar visual context. In these pictures, users asked the following questions:\n - What's the general theme of these books?  Thanks.\n - How many towels are on the shelf and what color are they?\n - How many video games are in these shelves?\n - Please explain what you see in the photograph.\n\nUse these questions as a guide for what kind of information is important to users.\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features.\nHere is the first picture that you must give a description of.",
+      "llm_response": "A shelf holding a stack of several books tilted at an angle. The visible book titles are:\nPerson Reference in Interaction\nInformation Sharing\nIntroduction to Probability Models\nTo the left of the books is a dark blue box with the words \"WILD ANIMALS\" on the side. Below, there is a bright red object and some white papers.",
+      "error": null,
+      "processing_time": 13.914601802825928
+    },
+    "86": {
+      "validation_id": "86",
+      "model_name": "gemini-2.5-pro",
+      "with_context": true,
+      "embedding_provider": "cohere",
+      "top_k_similar": 4,
+      "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00002786.jpg",
+      "real_question": "What is this?",
+      "crowd_majority": "teddy bear",
+      "timestamp": "2025-07-28T02:24:02.943845",
+      "similar_images": [
+        {
+          "id": "491",
+          "distance": 0.5417758822441101,
+          "question": "Where is my black braille book?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00002306.jpg",
+          "crowd_majority": "on blanket"
+        },
+        {
+          "id": "185",
+          "distance": 0.6368056535720825,
+          "question": "What is in the drawer and please describe.",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00004084.jpg",
+          "crowd_majority": "unanswerable"
+        },
+        {
+          "id": "167",
+          "distance": 0.6377912759780884,
+          "question": "How many video games are in these shelves?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00014438.jpg",
+          "crowd_majority": "58"
+        },
+        {
+          "id": "173",
+          "distance": 0.6478303074836731,
+          "question": "Please describe this card and any writing on it.",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00005192.jpg",
+          "crowd_majority": "on your birthday white background colorful floral design"
+        }
+      ],
+      "prompt_used": "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\nWe have retrieved pictures with similar visual context. In these pictures, users asked the following questions:\n - Where is my black braille book?\n - What is in the drawer and please describe.\n - How many video games are in these shelves?\n - Please describe this card and any writing on it.\n\nUse these questions as a guide for what kind of information is important to users.\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features.\nHere is the first picture that you must give a description of.",
+      "llm_response": "A white, fluffy teddy bear is sitting on a wooden shelf, holding a plush green stem with a red flower bud.\n\nTo the bear's left is a blue box with a picture of a clownfish and the words DOWN AQUA.\n\nTo the bear's right is a yellow box with text that reads:\nVOLUME 7\nWhat Does the Bible Really Teach?\n© 2005 Watch Tower Bible and Tract Society of Pennsylvania\nAll rights reserved. Made in U.S.A.\nPublished by Watchtower Bible and Tract Society of New York, Inc.\n25 Columbia Heights, Brooklyn, NY 11201-2483 U.S.A.\n\nOn the shelf below, there is a purple box with the words \"cuddly boutique\" and a small logo of a sheep. Several other boxes and what appear to be video game or DVD cases are behind and next to the purple box, but they are mostly in shadow.",
+      "error": null,
+      "processing_time": 15.396787166595459
+    },
+    "72": {
+      "validation_id": "72",
+      "model_name": "gemini-2.5-pro",
+      "with_context": true,
+      "embedding_provider": "cohere",
+      "top_k_similar": 4,
+      "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00007537.jpg",
+      "real_question": "What is this?",
+      "crowd_majority": "can soup",
+      "timestamp": "2025-07-28T02:24:18.341350",
+      "similar_images": [
+        {
+          "id": "24",
+          "distance": 0.3654651641845703,
+          "question": "Hope this works. What's in this can, please?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00008518.jpg",
+          "crowd_majority": "unanswerable"
+        },
+        {
+          "id": "53",
+          "distance": 0.404194176197052,
+          "question": "What is this.",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00016942.jpg",
+          "crowd_majority": "baked beans"
+        },
+        {
+          "id": "65",
+          "distance": 0.41208314895629883,
+          "question": "What kind of soup is this?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00003602.jpg",
+          "crowd_majority": "progresso"
+        },
+        {
+          "id": "541",
+          "distance": 0.4374893307685852,
+          "question": "Can you help me find the sodium content in this can, please?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00005975.jpg",
+          "crowd_majority": "no"
+        }
+      ],
+      "prompt_used": "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\nWe have retrieved pictures with similar visual context. In these pictures, users asked the following questions:\n - Hope this works. What's in this can, please?\n - What is this.\n - What kind of soup is this?\n - Can you help me find the sodium content in this can, please?\n\nUse these questions as a guide for what kind of information is important to users.\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features.\nHere is the first picture that you must give a description of.",
+      "llm_response": "A can of Progresso Vegetable Classics soup on a kitchen counter.\n\nThe label says it has 90 calories per serving, a full serving of vegetables, is a good source of fiber, has no MSG added, and is gluten-free. The can is 18.5 ounces.\n\nThe cooking instructions are:\nStove top: Heat in a saucepan.\nMicrowave: Heat in a covered microwaveable bowl on high for 2 to 4 minutes. Be careful, leave it in the microwave for 1 minute, then stir.\n\nThe nutrition facts panel, which would list the sodium content, is not visible in the picture.",
+      "error": null,
+      "processing_time": 15.358063220977783
+    },
+    "170": {
+      "validation_id": "170",
+      "model_name": "gemini-2.5-pro",
+      "with_context": true,
+      "embedding_provider": "cohere",
+      "top_k_similar": 4,
+      "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00005812.jpg",
+      "real_question": "What color is this shirt?",
+      "crowd_majority": "orange pink white",
+      "timestamp": "2025-07-28T02:24:33.700072",
+      "similar_images": [
+        {
+          "id": "276",
+          "distance": 0.46692442893981934,
+          "question": "What color is this T-shirt please?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00011708.jpg",
+          "crowd_majority": "red"
+        },
+        {
+          "id": "267",
+          "distance": 0.48621052503585815,
+          "question": "What is that color?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00004299.jpg",
+          "crowd_majority": "quilt"
+        },
+        {
+          "id": "261",
+          "distance": 0.5435450077056885,
+          "question": "Can you tell me the design on this t-shirt? ",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00001174.jpg",
+          "crowd_majority": "butterflies"
+        },
+        {
+          "id": "567",
+          "distance": 0.543999195098877,
+          "question": "Does this outfit match?",
+          "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00001799.jpg",
+          "crowd_majority": "yes"
+        }
+      ],
+      "prompt_used": "Your goal is to optimize your first response by generating a brief, but detailed description of the picture and prioritize what the user most likely needs.\n\nWe have retrieved pictures with similar visual context. In these pictures, users asked the following questions:\n - What color is this T-shirt please?\n - What is that color?\n - Can you tell me the design on this t-shirt? \n - Does this outfit match?\n\nUse these questions as a guide for what kind of information is important to users.\nIf the past questions conflict with the visual information, ignore them and prioritize describing the image's most prominent features.\nHere is the first picture that you must give a description of.",
+      "llm_response": "A white, short-sleeved blouse with a square neckline, covered in a bold, stylized floral pattern. The flowers and leaves are in bright shades of pink, red, orange, and yellow. The blouse is paired with bright pink pants. The outfit is accessorized with a delicate silver necklace with pearl-like beads and a silver-colored watch. The pink in the pants matches the pink flowers in the blouse.",
+      "error": null,
+      "processing_time": 15.76915192604065
+    }
+  },
+  "failed_ids": [],
+  "total_processed": 8,
+  "successful_count": 8,
+  "failed_count": 0
+}

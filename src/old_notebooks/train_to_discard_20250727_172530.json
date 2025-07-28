@@ -1,0 +1,596 @@
+[
+  {
+    "id": "301",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00014674.jpg",
+    "question": "Can you please provide cooking instructions for apple pie, cause I am starving",
+    "crowd_majority": "unsuitable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is a general knowledge request for a recipe and does not ask about the visual content of an image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "481",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00023765.jpg",
+    "question": "How many calories are in a slice of pepperoni and cheese pizza?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for information (calorie count) that is not visually present in an image and requires external knowledge to answer.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "563",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00000055.jpg",
+    "question": "Where do you think I could get a power cord? ",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for external information (where to buy an item) rather than asking about the visual content of the image itself.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "426",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00001839.jpg",
+    "question": "I know but how long do I leave it in the oven for? Now how long is the cooking time?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is not standalone and requires context from a previous conversation, as indicated by the phrase 'I know but...' and the ambiguous pronoun 'it'.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "534",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00003809.jpg",
+    "question": "Alright looking for the input or mode button I have moved the camera in tell me if this is clear. Thank you.",
+    "crowd_majority": "yes",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is asking about the quality of the image ('tell me if this is clear') rather than asking about the visual content within the image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "597",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00006899.jpg",
+    "question": "Is this a lot of black in this shirt? Can you hear my question?",
+    "crowd_majority": "no",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is a compound question, and the second part ('Can you hear my question?') is not about the visual content of an image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "219",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00016852.jpg",
+    "question": "What's the color?",
+    "crowd_majority": "peach",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is too vague and ambiguous. It does not specify which object's color is being asked about, which would be problematic if an image contains multiple items.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "348",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00008799.jpg",
+    "question": "Yes, I just need to know what the word is in this captcha image.",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question starts with 'Yes,' which indicates it is part of an ongoing conversation and not a standalone question.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "520",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00002437.jpg",
+    "question": "What's our school mascot?",
+    "crowd_majority": "spiders",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the pronoun 'our', which requires external context about the user's identity and school that cannot be determined from an image alone.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "23",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00010475.jpg",
+    "question": "How much is that?",
+    "crowd_majority": "1 dollar",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the ambiguous pronoun 'that' without specifying what object it refers to, making it unclear without visual context.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "376",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00008513.jpg",
+    "question": "What does it say?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses an ambiguous pronoun ('it') without a clear referent in the question text itself.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "436",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00015105.jpg",
+    "question": "the expiration date ",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The input is an incomplete sentence fragment and not a question.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "267",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00004299.jpg",
+    "question": "What is that color?",
+    "crowd_majority": "quilt",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the ambiguous pronoun 'that' without specifying what object it refers to, making it unclear.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "495",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00001452.jpg",
+    "question": "What is the answer?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is too vague and ambiguous. It is not a standalone question as it requires the context that the image contains a question or problem to be solved.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "479",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00011645.jpg",
+    "question": "Can you tell me what is on the other side of this box? In the photo I just sent you. Thank you.",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks about something that is not visible in the image (the other side of the box), and therefore cannot be answered from the visual content provided.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "572",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00002831.jpg",
+    "question": "What is the value of this artwork?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for the 'value' of an artwork, which is not a visual property and cannot be determined from the image alone. Answering it requires external knowledge, such as market data or art historical expertise.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "367",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00009131.jpg",
+    "question": "And could you also please tell me the expiration on this bottle please? Thank you.",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question starts with 'And could you also', which indicates it requires context from a previous conversation and is not a standalone question.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "9",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00001603.jpg",
+    "question": "What is it?",
+    "crowd_majority": "heavenly crisp candy bar",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses an ambiguous pronoun ('it') without a clear referent specified in the question text.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "289",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00015408.jpg",
+    "question": "What color is...",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is incomplete and is a sentence fragment. It does not specify what object it is asking the color of.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "598",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00004601.jpg",
+    "question": "Where did this come from?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is ambiguous. 'This' is an unclear pronoun and 'come from' could have multiple interpretations (e.g., sender, manufacturer, location) that may or may not be answerable from an image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "499",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00000759.jpg",
+    "question": "What is the answer?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is too vague and ambiguous. It does not specify what 'the answer' refers to, making it unclear what information is being requested from the image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "320",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00008118.jpg",
+    "question": "Can you read this bottle? Oh, no.",
+    "crowd_majority": "no",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question includes a conversational fragment ('Oh, no.') which makes it not a clear, standalone question.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "120",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00012277.jpg",
+    "question": "What is it?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses an ambiguous pronoun ('it') without a clear referent specified in the question text.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "424",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00012199.jpg",
+    "question": "Yes, I need to determine that word that is in this caption image. Thank you.",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "This is a statement of need ('I need to determine...') rather than a direct question, and it is a conversational fragment that requires context from a previous turn, as indicated by the word 'Yes,'.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "461",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00015159.jpg",
+    "question": "Is this lemon juice bad?  Yeah, but I don't know how else to do it.",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is a conversational fragment that includes a statement ('Yeah, but I don't know how else to do it') which requires external context to understand, making it not a clear, standalone question about visual content.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "89",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00010358.jpg",
+    "question": "again what is this tin? however i do think this system is really quite fantastic because it did tell one thing for me if you can't tell it's certainly not your fault.",
+    "crowd_majority": "green beans",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is not standalone as it references a previous turn with the word 'again' and includes a long conversational comment that is not part of the question about the image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "50",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00002032.jpg",
+    "question": "What is it?",
+    "crowd_majority": "watch",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the ambiguous pronoun 'it' without specifying what 'it' refers to, making the question vague on its own.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "159",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00011242.jpg",
+    "question": "How color?",
+    "crowd_majority": "dark brown",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is grammatically incorrect and incomplete, making it vague and unclear.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "162",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00014740.jpg",
+    "question": "Color is this",
+    "crowd_majority": "white",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is an incomplete sentence or a conversational fragment, not a standalone question.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "474",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00010536.jpg",
+    "question": "Where's my chess piece?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is ambiguous due to the use of the possessive 'my'. It requires external context to identify which chess piece belongs to the user, which is information that would not be available in the image itself.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "419",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00012196.jpg",
+    "question": "So, how long do I cook this in the microwave?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question begins with 'So,', which indicates it is a follow-up question that requires context from a previous conversation and is not a standalone query.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "577",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00018265.jpg",
+    "question": "How do I switch on this dishwasher?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for instructions on how to perform an action, rather than asking for a description of the visual content in the image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "408",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00011651.jpg",
+    "question": "What is, what does this, that, label say, if you can see it?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is a conversational fragment and is phrased in an unclear and ambiguous way ('What is, what does this, that...').",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "181",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00017386.jpg",
+    "question": "What is the color of this?",
+    "crowd_majority": "blue",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the ambiguous pronoun 'this' without specifying the object of interest, making it unclear what the user is asking about.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "525",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00018299.jpg",
+    "question": "How do I make this?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for instructions or a process ('how to make'), which is not information that can be directly observed in an image. It requires external knowledge beyond describing the visual content.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "477",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00001491.jpg",
+    "question": "Hey can you tell me how much this weighs? Thanks. ",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for a physical property (weight) which cannot be determined from visual information alone. A model cannot 'see' weight.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "528",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00018414.jpg",
+    "question": "How do I make pancakes with this mix?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for a procedure ('How do I...?') rather than asking about the visual content of the image itself. A more relevant question would be 'What do the instructions on the box say?'",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "494",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00003037.jpg",
+    "question": "What device does this adapter go to?",
+    "crowd_majority": "cell phone",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "This question cannot be answered by only looking at the image of an adapter, as the device it connects to is not pictured. Answering it would require external knowledge beyond the visual information provided.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "15",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00008990.jpg",
+    "question": "What this?",
+    "crowd_majority": "pepsi bottle carpet",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the ambiguous pronoun 'this' without specifying what it refers to, making it unclear.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "117",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00016471.jpg",
+    "question": "What is that?",
+    "crowd_majority": "keyboard",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the ambiguous pronoun 'that' without specifying what it refers to in the image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "127",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00011431.jpg",
+    "question": "What is it?",
+    "crowd_majority": "cream chicken",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses an ambiguous pronoun 'it' without specifying what 'it' refers to.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "504",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00007944.jpg",
+    "question": "This image does not show who the mail is for. It appears to be taken too close up on one part of the envelope without text.",
+    "crowd_majority": "clockwise",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "This is a statement or comment about the image, not a question asking for visual information.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "222",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00004613.jpg",
+    "question": "Hi can you please tell me what color that is?",
+    "crowd_majority": "brown",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses an ambiguous pronoun (\"that\") without a clear referent in the text itself, and it also begins with a greeting (\"Hi\").",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "498",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00008242.jpg",
+    "question": "What am I doing wrong? Oh. Is this dayquil or nyquil?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question begins with 'What am I doing wrong?', which is not about visual content, and contains the conversational fragment 'Oh.', making it not a clear, standalone question.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "114",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00000507.jpg",
+    "question": "What does it say?",
+    "crowd_majority": "76",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses an ambiguous pronoun ('it') without a clear referent in the question text itself.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "67",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00004262.jpg",
+    "question": "What is it? I did.",
+    "crowd_majority": "cd",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is a conversational fragment ('What is it? I did.') that is not a clear, standalone query and requires external context to understand the second part.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "529",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00016964.jpg",
+    "question": "How do you like this picture?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for a subjective opinion ('like') rather than a factual description of the visual content, which is not useful for training a vision-language model to describe what is in an image.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "507",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00002469.jpg",
+    "question": "Should I eat this for me tea?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question asks for a subjective opinion or advice ('Should I...') rather than an objective description of the visual content. Answering it requires external knowledge and personal context, not just visual analysis.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "136",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00004247.jpg",
+    "question": "What's this?",
+    "crowd_majority": "chair",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the ambiguous pronoun 'this' without specifying what it refers to. It is a vague and non-specific question.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "174",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00002708.jpg",
+    "question": "What's the color?",
+    "crowd_majority": "grey",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is ambiguous as it does not specify which object's color is being asked about.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "579",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00019363.jpg",
+    "question": "Does this here look okay, the bread, look okay?",
+    "crowd_majority": "yes",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question is too vague and subjective. What 'looks okay' is not a specific, objective visual property and requires guessing the user's criteria (e.g., not burnt, not moldy, risen correctly).",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "549",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_val_00000971.jpg",
+    "question": "Okay so we're in the boot menu I'd like to go to USB flash drive does it show where that is?  Am I on it if not does it show how to move to it?  Arrow...",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question begins with 'Okay so...', which indicates it is a conversational follow-up and not a standalone question, requiring context from a previous turn.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "73",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00015680.jpg",
+    "question": "What's in here?",
+    "crowd_majority": "baked beans",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question uses the ambiguous term 'here' without specifying what it refers to, making it unclear and not a standalone question.",
+      "method": "text_only_evaluation"
+    }
+  },
+  {
+    "id": "458",
+    "image_url": "https://vizwiz.cs.colorado.edu/VizWiz_visualization_img/VizWiz_train_00014051.jpg",
+    "question": "Oh so do I leave it in for twelve months then do I?",
+    "crowd_majority": "unanswerable",
+    "evaluation": {
+      "is_relevant": false,
+      "reason": "The question begins with 'Oh so...', which indicates it is a follow-up question that requires context from a previous conversation to be understood. It is not a standalone query.",
+      "method": "text_only_evaluation"
+    }
+  }
+]
