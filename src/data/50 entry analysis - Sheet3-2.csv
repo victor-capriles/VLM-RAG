@@ -1,0 +1,409 @@
+Entry Row,ID,User Question,With context,Without context,Preferred option,Explanation,Other Observations
+1,396,any phone number written here.,"A business card for a massage service called MIX & MaTcH MaSsaGe.
+
+It advertises: Double the pleasure with Singapore's first and only twin therapist massage!
+
+The services listed are:
+Hut 67 Massage
+Smooth & Soothe
+Back Breaker
+Stress Buster
+Ginger Treatment
+Lulur Body Scrub
+Tired Feet
+Post Natal
+Tummy Trimming
+
+It lists several locations and phone numbers:
+
+Central
+306 River Valley Road, Singapore 238347, (65) 6733 7727
+
+North
+96 Yio Chu Kang Road, Singapore 545574, (65) 6288 7377
+
+West
+118 Jurong... (the rest is cut off), (65) 6466 7737
+
+Other locations listed include:
+415 River Valley Road, Singapore 248314, (65) 6235 7737
+259 Upper Thomson Road, Singapore 574386, (65) 6454 7727
+SAFRA Yishun Country Club, 60 Yishun Ave 4 #01-V3, Singapore 769027, (65) 6555 7737
+154 West Coast Rd, West Coast Plaza, #02-20/21 S(127371), (65) 6774 7737","A business card for a massage service called MIX & MaTcH MaSsaGe. The card is two-toned, with a light green top and an olive green bottom. It has a small picture of white flowers in the top left corner.
+
+The card reads: Double the pleasure with Singapore's first and only twin therapist massage!
+
+The services listed are:
+Hut 67 Massage
+Smooth & Soothe
+Back Breaker
+Stress Buster
+Ginger Treatment
+Lulur Body Scrub
+Tired Feet
+Post Natal
+Tummy Trimming
+
+The locations and phone numbers are:
+
+Central
+306 River Valley Road, Singapore 238347, (65) 6733 7727
+415 River Valley Road, Singapore 248314, (65) 6235 7737
+259 Upper Thomson Road, Singapore 574386, (65) 6454 7727
+
+North
+96 Yio Chu Kang Road, Singapore 545574, (65) 6286 7377
+60 Yishun Ave 4 #01-V3, SAFRA Yishun Country Club, Singapore 769027, (65) 6555 7737
+
+West
+110 Jalan Jurong Kechil, #01-05 Sweebi House, (65) 6465 7737
+154 West Coast Rd, #02-20/21 S(127371), West Coast Plaza, (65) 6774 7737",Context,"With context was more concise, and provides information more focused on what the user is likely to need from a business card",Without context grouped better the addresses written in the business card
+2,60,What is this?,"A close-up, slightly blurry photo of a piece of clothing, likely shorts or pants. The fabric is a light beige or khaki color. On the right side of the image, there is a vertical seam with a decorative, textured stitch pattern next to it.","A blurry, close-up of light-colored fabric, possibly khaki or beige. It looks like a piece of clothing, with a thick, textured seam running vertically along the right side. The fabric is wrinkled, and the overall image is out of focus.",Neither,"With context provided more specific terminology, but without context provided other useful information like mentioning the image is out of focus and that the fabric was wrinkled",
+3,519,What are the directions of this product?,A dark brown tube of TRESemmé hair cream with a blue flip-top cap. The text on the front identifies it as TRESemmé Smooth Anti-Frizz Secret Smoothing Crème. The tube contains 4.0 ounces or 113 grams. The usage instructions are not visible in this picture.,"A dark brown tube of TRESemmé hair cream with a blue flip-top cap, sitting on a light-colored surface. The text on the tube is white and blue.
+
+The text reads:
+TRESemmé
+SMOOTH
+ANTI-FRIZZ SECRET
+SMOOTHING CRÈME
+professional results
+controls frizz
+from Tresemmé",Context,With context explained to the user that instructions were not visible (which was the user's real question) and also provided volume of the product,
+4,77,What is this item?,"A box for a Gourmet Bake & Fill Cake Pan. The front of the box shows a three-tiered round cake with white frosting, decorated with strawberries and blueberries.
+
+The text on the box says ""Designer cake for your favorite filling"" and suggests using it for:
+Ice Cream
+Fresh Fruit
+Pudding
+Whip Cream
+Mousse
+And More
+
+The pan has a non-stick finish.","A box for a Bake & Fill Cake Pan, held in someone's lap. The box features a picture of a two-tiered round cake with white frosting, decorated with strawberries, raspberries, and blueberries.
+
+The text on the box reads:
+Gourmet by Star Craft™
+BAKE & FILL CAKE PAN
+DESIGNER CAKE FOR YOUR FAVORITE FILLING
+
+A list of suggested fillings includes:
+Ice Cream
+Fresh Fruit
+Pudding
+Whip Cream
+Mousse
+And More
+
+At the bottom right, it says NON-STICK FINISH.
+In the bottom left corner, there's a small picture of the pan being filled, with the text: YOU ADD FILLING BEFORE YOU BAKE EVENLY",Context,"With context responded user's query equally well as without context, and was significantly shorter. (read most relevant text).",
+5,391,I need to know what the letters in this captcha image are. Thank you.,"A blurry close-up of a computer screen showing what appears to be a CAPTCHA. The characters to be typed seem to be DVXUW-.
+
+The image is very out of focus, making it difficult to be certain of the letters. Below the characters is a text field and a blue button to the right.",A blurry photo of a computer screen shows a CAPTCHA. The characters appear to be pvxuw.,Context,"With context explained more information about the quality of the image, and also explained that it is uncertain about the information presented.",Both responses could have some randomness answering the captcha.
+6,583,does this outfit look coordinated?,"A close-up of an outfit, showing a white button-up shirt with thin, vertical grey stripes. The shirt is tucked into dark pants that appear to be black. A black leather belt with a silver-colored rectangular buckle is visible at the waist. The colors of the outfit coordinate well."," A close-up of a person's torso, wearing a white button-down shirt with thin, grey vertical stripes. The shirt is tucked into dark, black-looking pants. A black leather belt with a simple, rectangular silver buckle is fastened at the waist. The shirt is slightly wrinkled and billows out a bit over the belt.",Context,"With context provided information about color coordination of the outfit (which was the user's real question). Also, used more direct language instead of saying ""torso"".",It is not sure if the user's question refers on neatness or well-coordinating referring to the outfit's style.
+7,41,What kind of pop is in this can?,"A blue and yellow can of Nestea iced tea. It has a picture of a lemon on it. The photo is taken from a downward perspective, showing your feet in light-colored socks on a light-colored floor. A silver pet bowl is also on the floor.","A blue and yellow can of Nestea on a white surface to your right. The picture is taken looking down at your feet, which are in light-colored socks on a light-colored floor. In front of you on the floor is a silver metal bowl next to the bottom edge of a wooden cabinet.",Context,"With context it is shorter, explains that it is iced tea, and mentions the presence of a lemon which helps the user know the flavor of the drink",
+8,35,What is this can? Thank you.,"A can of food is lying on its side on a white kitchen counter. The label is black, and the words 'RANCH STYLE' are visible in yellow letters. Most of the other text on the label is too blurry to read. Also on the counter is a ceramic chef figurine, an empty plastic soda bottle, and a package of small sausages.","A kitchen counter with several items on it. In the center is a black can of Ranch Style beans lying on its side. Below the can is a crushed, empty plastic soda bottle. In the background, there is a ceramic chef figurine and a package of small sausages.",Context,"With context specified that the text on the label is too blurry, and it also started the description with the can in the middle, which the user intentionally captured in the center to ask a question about it",Without context described better the can (the item of interest) more directly with few words.
+9,61,What is this?,"An older desktop computer setup on a desk.
+
+In the foreground is a black Logitech keyboard, model MK320.
+
+Behind the keyboard, a silver LCD monitor rests on a beige power control center. This control center has two lit red rocker switches labeled PRINTER and MONITOR.
+
+Plugged into the front of the control center is a small, beige, rectangular device. It has a round, white-rimmed speaker grille on its face and a small slider switch on its side. This is likely an external modem or a telephone line ringer.
+
+The monitor is silver with control buttons along the bottom edge, including OSD, AUTO, and SOURCE/SET. To the left of the monitor is a silver Boston computer speaker with three knobs for Master Volume, Satellite Volume, and Subwoofer.
+
+To the right of the beige device is a small black box with pink and green audio cables plugged into the top.","A desktop computer setup with several components.
+
+In the foreground is a black Logitech keyboard, model MK320.
+
+Behind the keyboard, under the monitor, is a power control unit with two rectangular, red switches that are currently lit up. The left switch is labeled PRINTER and the right switch is labeled MONITOR.
+
+To the right of these switches, two audio plugs, one pink and one light green, are plugged into a small black box. To the left of the switches is a small, beige, rectangular device with a round speaker grille.
+
+The monitor is silver and sits on top of the power control unit. Along the bottom right edge of its frame are five oval buttons. From left to right, they are labeled:
+OSD
+A left arrow
+An up arrow that is also labeled AUTO
+A right arrow
+A button labeled SOURCE/SET
+
+To the left of the monitor is a silver Boston speaker with three silver knobs on its base.",Context,With context provided specific identity of the beige device and described in a more legible way the controls of the monitor,
+10,305,For how long do I cook this in the microwave?,"A Lite n' Easy frozen meal of Baked Chicken with Mushroom Sauce.
+
+The microwave heating instructions are:
+1. Heat from frozen.
+2. Peel the corner of the film back before heating.
+3. Place the tray in the microwave.
+4. Heat on HIGH for 8 minutes. This is based on a 1000W microwave.
+
+It notes that microwave ovens vary, so you should adjust the heating time accordingly. To test if the meal is properly heated, you can place your hands under the pack and if you feel any cold spots, return it to the microwave for another 30 to 60 seconds.
+
+The picture on the package shows the chicken with mushroom sauce, roasted potatoes, green beans, and a mix of corn and carrots.","A Lite n' Easy frozen meal of Baked Chicken with Mushroom Sauce, sitting on a wooden surface. The menu number is 133.
+
+The microwave heating instructions are:
+Heat from frozen.
+Peel the corner of the film back before heating.
+Place the tray in the microwave.
+Heat on HIGH for 8 minutes.
+
+It notes that you should test if the meal is properly heated by placing your hands under the pack. If you feel any cold spots, return it to the microwave for a further 30-60 seconds.
+
+The expiry date is 23rd of June, 2012.",No Context,Without context provided same quality of cooking instruction explanation but also gave expiration date in natural language and was significantly shorter,
+11,74,What kind of beer is this?,"A tall, 24-ounce aluminum beverage can with black and white vertical stripes. Near the top, the number 24 is shown in black with a white outline inside a red box. The can is sitting on a wooden table.","A tall beverage can with black and white vertical stripes sitting on a table. Near the top of the can is a red rectangle with the number 24 in white. The photo is blurry and taken at a close angle. In the background, there is a window with blinds and a crumpled bag.",Context,"With context, provided volume of can and has few words.",Without context provided blurriness and closeness of photo but yapped about other things that are not the focus of the photo/user question
+12,401,What's the temperature set at?,"A white Honeywell thermostat with a large, round dial in the center. The temperature is set to approximately 77 degrees.
+
+The temperature scale around the dial is marked from 55 to 85.
+
+Below the dial, there are two horizontal slider switches. The switch on the left is slid to the left, and the switch on the right is slid to the right. There are no visible labels for these switches.","A white, rectangular Honeywell thermostat with a large, round dial in the center. The temperature is currently set to approximately 73 degrees Fahrenheit.
+
+The temperature markings around the dial range from 55 to 85 degrees, with numbers shown every five degrees.
+
+Below the dial, there are two small, horizontal switches. The one on the left is a recessed slider, and the one on the right is a raised switch.",No Context,"Without context provided farenheit specificity, and explained how the interface is arranged (e.g. ""with numbers shown every five degrees"")",Both responses hallucinated the real temperature.
+13,568,Where is the TV button on this remote?,"A close-up, blurry view of what appears to be a floor next to a wall. The image shows three horizontal bands of color. The top band is dark brown or black, possibly the bottom of a piece of furniture. Below it is a white stripe, which could be a baseboard. The largest, bottom section is a textured, beige or light brown surface, likely a carpet. There are no small objects visible on the carpeted area.","A blurry, close-up photograph showing three horizontal bands of color. The top third is a dark, almost black shape. Below that is a thick white stripe. The bottom half of the image is a grainy, light brown surface, possibly a carpeted floor. The white stripe could be a baseboard where the floor meets a wall. There is a dark shadow along the left edge.",Neither,With context and without context both provided very similar descriptions,With context mentioned there are no objects visible which is likely to be useful when capturing a big empty area
+14,211,What color skin is this?,"A blurry, close-up photograph of light brown skin with many small, dark brown dots that look like hair follicles or stubble. The dots are more concentrated on the right side of the image.","A blurry, close-up photograph of light brown skin. The surface is covered with many small, dark spots that look like pores or hair follicles. On the right side of the image, there is a patch of short, dark, coarse hair. The entire image is out of focus, making it difficult to see details clearly.",Context,With context was more concise and provided equal quality of information to without context.,Without context gave details about how the picture was taken.
+15,406,what does this say?,"A laptop screen showing a blue Windows desktop. There are no error messages or pop-up windows.
+
+On the left side of the screen is a column of icons for files and folders. A taskbar runs along the bottom.
+
+There is some text displayed on the desktop just above the taskbar. It reads:
+
+Computer Name: V5-10-0528
+IP Address: 10.2.3.127
+
+In the bottom right corner, above the system tray, it says: 2.0.0.0","A Dell laptop computer with its screen turned on, showing a blue desktop background. A column of icons for files and folders runs down the left side. The taskbar is at the bottom. On the right side of the taskbar, the following text is visible:
+V5-10-0528
+10:33 AM
+Computer Name:
+IP Address: 192.1.1.124
+To the far right of that, the number 2.0.0.0 is displayed.",Neither,Neither. Both hallucinated many details with too much unfounded confidence. Neither specificied that the photo has quality issues,With context mentioned there are no pop-ups or errors which could be useful.
+16,487,"Consuming which of the following can help raise the absorption of alcohol in the blood stream? Cordillius, coffee, carbon hydrate drinks or high protein?","A printed page with two multiple-choice questions.
+
+12. Consuming which of the following can help raise the absorption of alcohol in the bloodstream?
+A. Cordials
+B. Coffee
+C. Carbonated drinks
+D. High protein food
+
+13. One reason for using the SIR method is to
+A. Keep track of whom orders which drink at banquets, stadiums and casinos
+B. Evaluate a guest's level of alcohol intake
+C. Slow service to potentially prevent a guest from moving into the red zone
+D. Avoid writing an accident report","A printed page with two multiple-choice questions, which read:
+
+12. Consuming which of the following can help raise the absorption of alcohol in the bloodstream?
+A. Cordials
+B. Coffee
+C. Carbonated drinks
+D. High protein food
+
+Option C, Carbonated drinks, is circled.
+
+13. One reason for using the SIR method is to
+A. Keep track of whom orders which drink at banquets, stadiums and casinos
+B. Evaluate a guest's level of alcohol intake
+C. Slow service to potentially prevent a guest from moving into the red zone
+D. Avoid writing an accident report",Context,With Context did not hallucinate that option C was circled. There were no circles in the image,
+17,497,how many gigabytes does this have?,"An orange Apple iPod Nano music player is lying on a dark wood surface. The device is rectangular, with a black screen on the top half that is currently off and appears scratched. The bottom half features a white, circular control wheel with an orange button in the center. The wheel has the following controls:
+MENU at the top
+A rewind symbol on the left
+A fast-forward symbol on the right
+A play/pause symbol at the bottom","An orange Apple iPod Nano is lying on a dark wood surface. The device is rectangular with a dark, scratched screen on the top half and a white, circular click wheel on the bottom half.
+
+The controls on the click wheel are:
+Top: MENU
+Right: Next track
+Bottom: Play/Pause
+Left: Previous track
+
+The button in the very center of the wheel is orange.",Neither,Neither. Similar verbosity and content. Real question was to acquire information the back of the device but neither mention any related information,
+18,369,What is the expiry date?,"A best before date stamped in black ink on a light brown, textured surface. The text reads:
+BEST BEFORE/MEILLEUR AVANT
+2012 DE14 01:35 REG. 4015K","A best before date stamped in dark ink on a yellowish, textured surface.
+
+The text reads:
+BEST BEFORE/MEILLEUR AVANT
+2012 DE14 01:35 REG. 4015K",Neither,"Neither. Similar verbosity and content. Both with context and without context ""technically"" answer user real question (""What's the expiration date?"")","For blind people in the context of food, explaining the expiration date in a clear way is often relevant."
+19,165,What color is this?,"Five oranges scattered on a table covered with a white lace tablecloth under a clear plastic sheet. One orange is in the foreground, and the others are behind it. To the left of the oranges, there is a blue and silver snack bag, a stack of clear plastic cases, a remote control, and a small desk calendar. In the background to the right is a floral tissue box.","A tabletop with five oranges on it. One orange is in the foreground, and it has a small dark spot on its peel. The other four oranges are further back.
+
+To the left of the oranges, there is a blue and silver snack bag, a stack of clear plastic cases, a remote control, and a small calendar. In the background to the right is a tissue box with a pink floral design. The table is covered with a light green tablecloth that has a white lace pattern.",Neither,"Neither. Both provided similar quality of description and answer the user's real question (""What color is this?"")","Technically, with context is better because it has fewer words, but it also gets distracted by too many surrounding items."
+20,231,does the screen say anything now?,"A silver Compaq computer monitor with a dark screen that appears to be off.
+
+On the left side of the screen's frame, there is a round power button. Above it is a long, vertical button for adjustments.
+
+The brand name COMPAQ is on the top right of the frame. A sticker on the right side has text that reads:
+Compaq FS7600e 17""
+Flat Screen CRT Monitor","An old, silver-colored computer monitor, photographed sideways. The screen is dark and appears to be off.
+
+There is text on the frame of the monitor. On the top right, it says COMPAQ.
+
+There is also a sticker on the right side of the frame with the following text:
+Compaq FS7600e 17"" Flat Screen CRT Monitor
+Stand-alone Compaq stereo speakers
+Plug-and-play convenience and simplicity
+Award-winning 24 x 7 service and support
+
+On the bottom left of the frame, there is a long, oval button and a round power button.",Context,With context was more concise and provided equal quality of information to without context.,
+21,500,"I sent you an image, please tell what is this and tell me about how can I use it.","Two large, upright cardboard boxes for washing and dryer machines are standing side-by-side. The brand name on the front is Asia. The boxes are labeled ""Best Quality"" and ""Heavy Duty Motor"". They are mostly yellow, red, and blue, and show a picture of a white, twin-tub washing machine. Both boxes are secured with black plastic straps.","Two large cardboard boxes for washing machines are standing side-by-side on a paved surface, possibly outdoors. The boxes are colorful, primarily yellow, red, and blue, and are secured with black plastic straps.
+
+The text on the boxes includes:
+Best Quality
+WASHING & DRYER MACHINE
+M asia
+WASHING & DRYER MACHINE
+energy saver
+Heavy Duty Motor
+Super Clean
+TURBO WAVE
+HAFIZ TAHIR ELECTRICAL INDUSTRY
+
+There is also a picture of a white, top-loading washing machine on the front of each box.",Context,With context was more concise and provided equal quality of information to without context.,Without context transcribed text present but did not provide any useful information
+22,107,What is this jar?," A glass jar of Sainsbury's gherkins in sweet vinegar, sitting on a wooden surface. The jar is full of small, green, pickled cucumbers in a clear liquid. The label is light green and white. I cannot see an expiration date from this angle.","A glass jar of gherkins on a wooden table. The label reads ""gherkins in sweet vinegar by Sainsbury"". The jar has a black lid and is filled with small, green, bumpy pickles in a clear liquid.",Context,"With context was better because it provides more critical information such as expiration date absence and it also identified ""pickled cucmbers"" instead of just bumpy pickles",
+23,68,What is this product?,"A blurry, black and white photograph held over a colorful, floral tablecloth. The tablecloth has a creamy yellow background with a pattern of red, orange, and yellow flowers and green leaves. The photograph on the left is too out of focus to make out details, but it seems to show a person in a dark room. The tablecloth appears to be covered in a clear plastic sheet.","A blurry black and white photograph held over a colorful floral tablecloth.
+
+The photograph on the left is very out of focus, but it appears to show a person sitting at a table. The tablecloth on the right is much clearer and has a pattern of large flowers in red, orange, and yellow, with green leaves, on a pale yellow background. The table is covered with a clear, shiny plastic sheet",No Context, Both provided similar information (quality issues of photo) and similar verbosity. But without context was better because it is more proactive explaining the photo ,
+24,299,What color is this?,"Faded black fabric, seen in a close-up view. It appears to be a heavy material like denim or twill, with visible wrinkles and a seam. There are a few tiny specks of lint on the surface. Part of a finger is blocking the view on the right side of the image.","A close-up of dark gray or black fabric, possibly denim or a heavy twill material. The fabric is wrinkled and has a seam in the upper left corner. There are small, light-colored specks, like lint or dust, scattered across the surface. A blurry finger is covering the right side of the picture.",Neither,"Neither. Both provided similar quality of description and answer the user's real question (""What color is this?"")","With context used the word ""faded"" which could be useful to know more about the state of the fabric."
+25,235,"Hi, I'm going to start over. This is the place mat that are related to the napkins. First, I need to know if the stripes are vertical or horizontal.","A floral patterned fabric with a striped background. The background has thin, horizontal stripes of golden-yellow and off-white. Scattered over the stripes are flowers in shades of blue and purple with dark green leaves. The larger flowers are roses that range from light blue to a deep royal blue, while smaller flowers are a purplish-blue. The pattern is floral and striped, not spotted.","A piece of fabric with a floral pattern on a striped background. The background consists of thin, horizontal, yellow-gold stripes on a white base. Overlaid on the stripes are blue roses of various sizes and shades, connected by green leaves and vines. There are also small clusters of tiny purple flowers. The fabric appears to have a slightly puckered texture.",Neither,"Neither. Both provided similar quality of description and answer the user's real question (""I need to know if the stripes are vertical or horizontal"")",
+26,538,Can you please describe to me what's on the page and its orientation? Thank you,"A colorful newspaper advertisement for a car dealership's summer sales event. The ad appears to be for Cherry Creek Dodge Chrysler Jeep in Colorado, also mentioning ""Dealin' Doug"". It features pictures of a red Dodge and a dark-colored Jeep. The main headline reads ""Summer Sales Event"" in a red, flame-style font.","An upside-down, colorful newspaper ad for a car dealership. The ad is for the ""BIG SUMMER SALES EVENT"" at Cherry Creek Dodge Chrysler-Jeep, a ""Dealin' Doug"" dealership.
+
+The ad has bright yellow and green sections with large, bold text. It claims to be ""Colorado's #1 VOLUME JEEP DEALERSHIP!!"". The words ""BIG SUMMER SALES EVENT"" are in red with a dripping, flame-like font. There are also upside-down photos of a dark SUV and a red truck.
+
+A website listed is www.dealindougautos.com.",No Context,"Without provided image orientation (e.g. ""upside-down"") which was the user real question. It also describes more comprehensively the content of the page without being overly verbose","With context seems better narrated and written than without context, while without context transcribed the text presented and it has more words."
+27,25,What kind of wine is this?,"A bottle of wine lying on its side on a beige tablecloth. The label is mostly black with a red rectangle. The text on the label reads:
+WARRIOR COVE
+Pinot Gris
+GISBORNE
+2011
+Next to the bottle is a coaster with a picture of a snowy mountain and a lake. The tablecloth has a red wine stain, and the scene is lit by warm sunlight.","A bottle of wine is lying on its side on a beige, wrinkled tablecloth. The label is black with a red square and a black-and-white illustration. The text on the label reads:
+WARRIOR . COVE .
+Pinot Gris GISBORNE 2011
+
+The tablecloth has a faint red wine stain on it. To the left of the bottle is the corner of a coaster showing a picture of a snowy mountain. The scene is lit by bright, warm sunlight.",Context,"With context was more concise and provided equal quality of information to without context. (read wine label, describe the bottle, and briefly describe the context visual)","None of the responses mention the kind of wine, just read the label without infering directly the kind of wine."
+28,351,Could you read me the card? Thanks.,"A close-up, blurry image showing a bright red object across the top half. On the red surface, the letters YJ or YI are faintly visible. The bottom half of the photo is a blurry orange color, possibly fabric. In the bottom right corner, there is a dark, mottled surface with light reflecting off it.","A close-up, blurry photo showing a bright red horizontal band across the top half. On the red band, there are large letters in a slightly different shade of red. The visible letters look like YJÍ, but they are cut off. The bottom half of the image is a blurry orange color. In the lower right corner, there's a dark, reflective surface, like a countertop, with some bright lights reflected in it.",No Context,"Without context was better because it provides information about the quality of the photo equally well as with context, but additionally mentioned that the text was cut off.",
+29,11,"Can you tell me what this is, please?","A white bottle with a pink and green label for Sodastream Raspberry flavoured drink concentrate, made with sugar and sweeteners.
+
+The instructions say to dilute 1 part concentrate with 23 parts water.
+
+How to make your soda:
+1. Fill the bottle with cold water and carbonate.
+2. Fill measuring cap with sodamix.
+3. Pour slowly into tilted bottle.
+
+Ingredients when reconstituted:
+Carbonated Water (Water, Carbon dioxide)
+Sugar
+Flavour
+Food Acid (Citric Acid - 330)
+Non-nutritive Sweeteners (Sucralose, Acesulfame Potassium)
+Acidity regulator (Sodium Citrate - 331)
+Colour (E122)
+Preservative (Sodium Benzoate - 211)
+
+Nutritional Information for drink as reconstituted. Servings per package: 48. Serving Size: 250 ml.
+Average quantity per 250 ml serving:
+Energy: 160.0 kJ / 38.2 kcal
+Proteins: 0.0 g
+Fats: 0.0 g
+Saturated: 0.0 g
+Carbohydrate: 9.0 g
+Sugars: 9.0 g
+Sodium: 16.2 mg
+
+Average quantity per 100 ml:
+Energy: 64.0 kJ / 15.3 kcal
+Proteins: 0.0 g
+Fats: 0.0 g
+Saturated: 0.0 g
+Carbohydrate: 3.6 g
+Sugars: 3.6 g
+Sodium: 6.5 mg
+
+The bottle should be stored between 10 and 23 degrees Celsius, or refrigerated after opening. The best before date is not visible.","The back label of a bottle of Sodastream Raspberry flavoured drink concentrate.
+
+The instructions say to dilute 1 part concentrate with 23 parts water.
+
+The text on the label reads:
+
+Sodastream Raspberry
+Flavoured Drink Concentrate
+With sugar and sweeteners
+
+Ingredients when reconstituted: Carbonated Water (Water, Carbon dioxide), Sugar, Flavour, Food Acid (Citric Acid - 330), Non-nutritive Sweeteners (Sucralose, Acesulfame Potassium), Acidity regulator (Sodium Citrate - 331), Colour (E122), Preservative (Sodium Benzoate - 211).
+
+Nutritional Information for drink as reconstituted
+Servings per package: 48
+Serving Size: 250 ml
+
+Average quantity per serving
+Energy: 160.0 kJ / 38.2 kcal
+Proteins: 0.0 g
+Fats: 0.0 g
+saturated: 0.0 g
+Carbohydrate: 9.0 g
+sugars: 9.0 g
+Sodium: 16.2 mg
+
+Average quantity per 100 ml
+Energy: 64.0 kJ / 15.3 kcal
+Proteins: 0.0 g
+Fats: 0.0 g
+saturated: 0.0 g
+Carbohydrate: 3.6 g
+sugars: 3.6 g
+Sodium: 6.5 mg
+
+Best stored between 10°C-23°C or refrigerate after opening.
+
+The ""Best before"" date is printed below this, but the date itself is not visible in the picture.",Context,"With Context provided drink preparation instructions which user presumably wanted/ or would find useful and the rest of the information is of equal quality (Nutritional facts, absence of expiration label, ingredients)",
+30,550,What vocab word is in number one?,"A Spanish language worksheet with a fill-in-the-blank exercise. At the top, there is a box with verbs. Below that is a numbered list of sentences with blank spaces.
+
+The verbs in the box are:
+almorzar
+conducir
+hacer
+ofrecer
+oír
+parecer
+poner
+sacar
+traducir
+traer
+venir
+ver
+
+The sentences are:
+1. Es necesario que (yo) [blank] a casa temprano para ayudar a mi mamá.
+2. Es bueno que (la universidad) [blank] muchos cursos por semestre.
+3. Es malo que (ellos) [blank] justo antes de ir a nadar a la piscina.
+4. Es urgente que (Lara) [blank] estos documentos legales.
+5. Es mejor que (tú) [blank] más lento para evitar (avoid) accidentes.
+6. Es importante que (ella) no [blank] la cafetera en la mesa.
+7. Es bueno que (tú) [blank] las fotos para verlas en la fiesta.
+8. Es necesario que (él) [blank] la casa antes de comprarla.
+9. Es malo que (nosotros) no [blank] la basura todas las noches.
+10. Es importante que (ustedes) [blank] los quehaceres domésticos.","A Spanish grammar exercise on a worksheet. There is a box of verbs and a list of ten sentences with blanks to be filled in.
+
+The verbs in the box are:
+almorzar
+conducir
+hacer
+ofrecer
+oír
+parecer
+poner
+sacar
+traducir
+traer
+venir
+ver
+
+The sentences to be completed are:
+1. Es necesario que (yo) blank a casa temprano para ayudar a mi mamá.
+2. Es bueno que (la universidad) blank muchos cursos por semestre.
+3. Es malo que (ellos) blank justo antes de ir a nadar a la piscina.
+4. Es urgente que (Lara) blank estos documentos legales.
+5. Es mejor que (tú) blank más lento para evitar (avoid) accidentes.
+6. Es importante que (ella) no blank la cafetera en la mesa.
+7. Es bueno que (tú) blank las fotos para verlas en la fiesta.
+8. Es necesario que (él) blank la casa antes de comprarla.
+9. Es malo que (nosotros) no blank la basura todas las noches.
+10. Es importante que (ustedes) blank los quehaceres domésticos.",Neither,"Neither. With context and without context provided equal quality of information (List of verbs, sentences, and explanation of the exercise)",
